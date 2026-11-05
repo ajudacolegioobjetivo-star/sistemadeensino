@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Escolar - Gestão Educacional</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React e ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel para compilar JSX no navegador -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        function App() {
+            const [user, setUser] = React.useState(null);
+            const [currentTab, setCurrentTab] = React.useState('home');
+
+            // Estados de dados editáveis (Gestão)
+            const [avisos, setAvisos] = React.useState([
+                { id: 1, titulo: 'Feira de Ciências 2026', prioridade: 'Urgente', autor: 'Direção', texto: 'Inscrições abertas para os projetos até a próxima sexta-feira.' },
+                { id: 2, titulo: 'Reunião de Pais e Mestres', prioridade: 'Média', autor: 'Coordenação', texto: 'Acontecerá no auditório principal no dia 15 às 19h.' },
+                { id: 3, titulo: 'Manutenção na Rede', prioridade: 'Informativo', autor: 'TI', texto: 'A internet do laboratório estará instável na terça-feira.' }
+            ]);
+
+            const [provas, setProvas] = React.useState([
+                { id: 1, disciplina: 'Matemática', data: '12/11/2026', horario: '08:00', sala: 'Sala 101', peso: '3.0' },
+                { id: 2, disciplina: 'Física', data: '14/11/2026', horario: '10:00', sala: 'Laboratório 2', peso: '2.5' },
+                { id: 3, disciplina: 'História', data: '18/11/2026', horario: '08:30', sala: 'Sala 103', peso: '2.0' }
+            ]);
+
+            const [calendario, setCalendario] = React.useState([
+                { id: 1, data: '10/11/2026', evento: 'Início das Provas Bimestrais', tipo: 'Avaliação' },
+                { id: 2, data: '20/11/2026', evento: 'Feriado: Consciência Negra', tipo: 'Feriado' },
+                { id: 3, data: '30/11/2026', evento: 'Conselho de Classe', tipo: 'Gestão' }
+            ]);
+
+            // Estados para modais de cadastro
+            const [modalTipo, setModalTipo] = React.useState(null); // 'aviso', 'prova', 'evento'
+            const [novoTitulo, setNovoTitulo] = React.useState('');
+            const [novoTexto, setNovoTexto] = React.useState('');
+            const [novaPrioridade, setNovaPrioridade] = React.useState('Média');
+            const [novaDisciplina, setNovaDisciplina] = React.useState('');
+            const [novaData, setNovaData] = React.useState('');
+            const [novoHorario, setNovoHorario] = React.useState('');
+            const [novaSala, setNovaSala] = React.useState('');
+            const [novoPeso, setNovoPeso] = React.useState('2.0');
+            const [novoEvento, setNovoEvento] = React.useState('');
+            const [novoTipoEvento, setNovoTipoEvento] = React.useState('Avaliação');
+
+            React.useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [user, currentTab, modalTipo]);
+
+            // Funções CRUD
+            const adicionarAviso = (e) => {
+                e.preventDefault();
+                if (!novoTitulo || !novoTexto) return;
+                setAvisos([...avisos, { id: Date.now(), titulo: novoTitulo, texto: novoTexto, prioridade: novaPrioridade, autor: user?.name || 'Gestão' }]);
+                setNovoTitulo(''); setNovoTexto(''); setModalTipo(null);
+            };
+
+            const adicionarProva = (e) => {
+                e.preventDefault();
+                if (!novaDisciplina || !novaData) return;
+                setProvas([...provas, { id: Date.now(), disciplina: novaDisciplina, data: novaData, horario: novoHorario || '08:00', sala: novaSala || 'Sala 101', peso: novoPeso }]);
+                setNovaDisciplina(''); setNovaData(''); setModalTipo(null);
+            };
+
+            const adicionarEvento = (e) => {
+                e.preventDefault();
+                if (!novoEvento || !novaData) return;
+                setCalendario([...calendario, { id: Date.now(), data: novaData, evento: novoEvento, tipo: novoTipoEvento }]);
+                setNovoEvento(''); setNovaData(''); setModalTipo(null);
+            };
+
+            const removerAviso = (id) => setAvisos(avisos.filter(a => a.id !== id));
+            const removerProva = (id) => setProvas(provas.filter(p => p.id !== id));
+            const removerEvento = (id) => setCalendario(calendario.filter(c => c.id !== id));
+
+            // Se não estiver logado, exibe tela de login
+            if (!user) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 flex items-center justify-center p-4">
+                        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-md w-full p-8 border border-white/20">
+                            <div className="text-center mb-8">
+                                <div className="inline-flex p-3 bg-blue-600 text-white rounded-xl shadow-lg mb-4">
+                                    <i data-lucide="graduation-cap" className="w-8 h-8"></i>
+                                </div>
+                                <h1 className="text-2xl font-bold text-gray-900">Sistema Escolar</h1>
+                                <p className="text-sm text-gray-500 mt-1">Faça login para acessar o portal</p>
+                            </div>
+
+                            <div className="space-y-3">
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Acesso Rápido por Perfil:</p>
+                                <button 
+                                    onClick={() => setUser({ name: 'Diretor Carlos', role: 'admin' })}
+                                    className="w-full flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-xl transition border border-blue-200">
+                                    <span className="flex items-center gap-2"><i data-lucide="shield-check" className="w-5 h-5"></i> Administrador / Gestão</span>
+                                    <span className="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded">Total</span>
+                                </button>
+                                <button 
+                                    onClick={() => setUser({ name: 'Profa. Mariana', role: 'teacher' })}
+                                    className="w-full flex items-center justify-between p-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded-xl transition border border-emerald-200">
+                                    <span className="flex items-center gap-2"><i data-lucide="book-open" className="w-5 h-5"></i> Professor</span>
+                                    <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded">Parcial</span>
+                                </button>
+                                <button 
+                                    onClick={() => setUser({ name: 'Lucas Silva (Aluno)', role: 'student' })}
+                                    className="w-full flex items-center justify-between p-3 bg-amber-50 hover:bg-amber-100 text-amber-700 font-medium rounded-xl transition border border-amber-200">
+                                    <span className="flex items-center gap-2"><i data-lucide="user" className="w-5 h-5"></i> Aluno / Responsável</span>
+                                    <span className="text-xs bg-amber-200 text-amber-800 px-2 py-0.5 rounded">Leitura</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen flex flex-col bg-gray-50">
+                    {/* Header */}
+                    <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+                        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-600 text-white rounded-lg">
+                                    <i data-lucide="graduation-cap" className="w-6 h-6"></i>
+                                </div>
+                                <span className="font-bold text-lg text-gray-900 hidden sm:inline">Portal Escolar</span>
+                            </div>
+
+                            <nav className="flex gap-1">
+                                <button onClick={() => setCurrentTab('home')} className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 ${currentTab === 'home' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
+                                    <i data-lucide="home" className="w-4 h-4"></i> Início
+                                </button>
+                                {(user.role === 'admin' || user.role === 'teacher') && (
+                                    <button onClick={() => setCurrentTab('management')} className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 ${currentTab === 'management' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
+                                        <i data-lucide="settings" className="w-4 h-4"></i> Gestão Escolar
+                                    </button>
+                                )}
+                                <button onClick={() => setCurrentTab('students')} className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 ${currentTab === 'students' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
+                                    <i data-lucide="users" className="w-4 h-4"></i> Alunos
+                                </button>
+                                <button onClick={() => setCurrentTab('grades')} className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 ${currentTab === 'grades' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
+                                    <i data-lucide="award" className="w-4 h-4"></i> Notas & Frequência
+                                </button>
+                            </nav>
+
+                            <div className="flex items-center gap-3 border-l pl-4 border-gray-200">
+                                <div className="text-right hidden md:block">
+                                    <p className="text-xs font-semibold text-gray-900">{user.name}</p>
+                                    <p className="text-[10px] text-gray-500 uppercase">{user.role}</p>
+                                </div>
+                                <button onClick={() => setUser(null)} title="Sair" className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition">
+                                    <i data-lucide="log-out" className="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Conteúdo Principal */}
+                    <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8">
+                        {currentTab === 'home' && (
+                            <div className="space-y-8">
+                                {/* Boas-vindas */}
+                                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                    <div>
+                                        <h2 className="text-2xl font-bold">Olá, {user.name}!</h2>
+                                        <p className="text-blue-100 text-sm mt-1">Confira abaixo os avisos recentes, cronograma de provas e o calendário escolar atualizado.</p>
+                                    </div>
+                                    <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20 text-xs">
+                                        📅 Ano Letivo 2026 - 2º Semestre
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    {/* Mural de Avisos */}
+                                    <div className="lg:col-span-2 space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                                <i data-lucide="bell" className="w-5 h-5 text-blue-600"></i> Mural de Avisos
+                                            </h3>
+                                            {user.role === 'admin' && (
+                                                <button onClick={() => setModalTipo('aviso')} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-1">
+                                                    <i data-lucide="plus" className="w-3.5 h-3.5"></i> Novo Aviso
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {avisos.map(aviso => (
+                                                <div key={aviso.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                                                    <div>
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase ${aviso.prioridade === 'Urgente' ? 'bg-red-100 text-red-700' : aviso.prioridade === 'Média' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                                {aviso.prioridade}
+                                                            </span>
+                                                            <span className="text-xs text-gray-400">Por {aviso.autor}</span>
+                                                        </div>
+                                                        <h4 className="font-bold text-gray-900 text-base mb-1">{aviso.titulo}</h4>
+                                                        <p className="text-xs text-gray-600 leading-relaxed">{aviso.texto}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Provas do Semestre */}
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                                <i data-lucide="file-text" className="w-5 h-5 text-indigo-600"></i> Provas do Semestre
+                                            </h3>
+                                            {user.role === 'admin' && (
+                                                <button onClick={() => setModalTipo('prova')} className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition flex items-center gap-1">
+                                                    <i data-lucide="plus" className="w-3.5 h-3.5"></i> Agendar
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
+                                            {provas.map(prova => (
+                                                <div key={prova.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                                    <div>
+                                                        <p className="font-semibold text-sm text-gray-900">{prova.disciplina}</p>
+                                                        <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                                                            <i data-lucide="calendar" className="w-3.5 h-3.5"></i> {prova.data} às {prova.horario} | {prova.sala}
+                                                        </p>
+                                                    </div>
+                                                    <span className="text-xs bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-md border border-indigo-100">
+                                                        Peso {prova.peso}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Calendário Escolar Resumo */}
+                                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                            <i data-lucide="calendar-days" className="w-5 h-5 text-emerald-600"></i> Calendário Escolar
+                                        </h3>
+                                        {user.role === 'admin' && (
+                                            <button onClick={() => setModalTipo('evento')} className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-emerald-700 transition flex items-center gap-1">
+                                                <i data-lucide="plus" className="w-3.5 h-3.5"></i> Adicionar Evento
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        {calendario.map(item => (
+                                            <div key={item.id} className="p-4 rounded-xl border border-gray-100 bg-gray-50 flex items-start gap-3">
+                                                <div className="p-2.5 bg-emerald-100 text-emerald-700 rounded-lg">
+                                                    <i data-lucide="calendar" className="w-5 h-5"></i>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[10px] font-bold text-emerald-700 uppercase bg-emerald-50 px-2 py-0.5 rounded">{item.tipo}</span>
+                                                    <h4 className="font-semibold text-sm text-gray-900 mt-1">{item.evento}</h4>
+                                                    <p className="text-xs text-gray-500 mt-0.5">Data: {item.data}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {currentTab === 'management' && (user.role === 'admin' || user.role === 'teacher') && (
+                            <div className="space-y-6">
+                                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Painel de Gestão Escolar</h3>
+                                    <p className="text-sm text-gray-500">Gerencie avisos, adicione datas ao calendário oficial e controle o cronograma de avaliações.</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Gerenciar Avisos */}
+                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="bell" className="w-4 h-4 text-blue-600"></i> Avisos Ativos</h4>
+                                            <button onClick={() => setModalTipo('aviso')} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg">Novo Aviso</button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {avisos.map(a => (
+                                                <div key={a.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+                                                    <div>
+                                                        <span className="font-bold text-gray-900">{a.titulo}</span>
+                                                        <p className="text-gray-500 mt-0.5 truncate max-w-[200px] sm:max-w-xs">{a.texto}</p>
+                                                    </div>
+                                                    <button onClick={() => removerAviso(a.id)} className="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" className="w-4 h-4"></i></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Gerenciar Provas */}
+                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="file-text" className="w-4 h-4 text-indigo-600"></i> Provas Cadastradas</h4>
+                                            <button onClick={() => setModalTipo('prova')} className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg">Nova Prova</button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {provas.map(p => (
+                                                <div key={p.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+                                                    <div>
+                                                        <span className="font-bold text-gray-900">{p.disciplina}</span>
+                                                        <p className="text-gray-500 mt-0.5">{p.data} - {p.sala}</p>
+                                                    </div>
+                                                    <button onClick={() => removerProva(p.id)} className="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" className="w-4 h-4"></i></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {currentTab === 'students' && (
+                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900">Alunos & Turmas</h3>
+                                        <p className="text-sm text-gray-500">Lista geral de estudantes matriculados no ano letivo de 2026.</p>
+                                    </div>
+                                    <span className="text-xs bg-blue-50 text-blue-700 font-semibold px-3 py-1.5 rounded-lg border border-blue-200">Total: 3 Alunos Exemplo</span>
+                                </div>
+
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 text-xs uppercase tracking-wider">
+                                            <tr>
+                                                <th className="p-3">Estudante</th>
+                                                <th className="p-3">Turma</th>
+                                                <th className="p-3">Responsável</th>
+                                                <th className="p-3">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            <tr className="hover:bg-gray-50">
+                                                <td className="p-3 font-medium text-gray-900">Lucas Silva</td>
+                                                <td className="p-3 text-gray-600">3º Ano Ensino Médio A</td>
+                                                <td className="p-3 text-gray-600">Maria Silva</td>
+                                                <td className="p-3"><span className="text-[10px] bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">Matriculado</span></td>
+                                            </tr>
+                                            <tr className="hover:bg-gray-50">
+                                                <td className="p-3 font-medium text-gray-900">Ana Beatriz Souza</td>
+                                                <td className="p-3 text-gray-600">2º Ano Ensino Médio B</td>
+                                                <td className="p-3 text-gray-600">Carlos Souza</td>
+                                                <td className="p-3"><span className="text-[10px] bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">Matriculado</span></td>
+                                            </tr>
+                                            <tr className="hover:bg-gray-50">
+                                                <td className="p-3 font-medium text-gray-900">Gabriel Santos</td>
+                                                <td className="p-3 text-gray-600">1º Ano Ensino Médio A</td>
+                                                <td className="p-3 text-gray-600">Juliana Santos</td>
+                                                <td className="p-3"><span className="text-[10px] bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">Matriculado</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {currentTab === 'grades' && (
+                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900">Boletim Escolar & Frequência</h3>
+                                    <p className="text-sm text-gray-500">Acompanhamento de notas bimestrais e percentual de presença.</p>
+                                </div>
+
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 text-xs uppercase tracking-wider">
+                                            <tr>
+                                                <th className="p-3">Disciplina</th>
+                                                <th className="p-3 text-center">1º Bim</th>
+                                                <th className="p-3 text-center">2º Bim</th>
+                                                <th className="p-3 text-center">Média Parcial</th>
+                                                <th className="p-3 text-center">Frequência</th>
+                                                <th className="p-3 text-center">Situação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            <tr className="hover:bg-gray-50">
+                                                <td className="p-3 font-medium text-gray-900">Matemática</td>
+                                                <td className="p-3 text-center">8.5</td>
+                                                <td className="p-3 text-center">7.5</td>
+                                                <td className="p-3 text-center font-bold">8.0</td>
+                                                <td className="p-3 text-center">95%</td>
+                                                <td className="p-3 text-center"><span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Aprovado</span></td>
+                                            </tr>
+                                            <tr className="hover:bg-gray-50">
+                                                <td className="p-3 font-medium text-gray-900">Física</td>
+                                                <td className="p-3 text-center">6.0</td>
+                                                <td className="p-3 text-center">7.0</td>
+                                                <td className="p-3 text-center font-bold">6.5</td>
+                                                <td className="p-3 text-center">90%</td>
+                                                <td className="p-3 text-center"><span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Aprovado</span></td>
+                                            </tr>
+                                            <tr className="hover:bg-gray-50">
+                                                <td className="p-3 font-medium text-gray-900">História</td>
+                                                <td className="p-3 text-center">9.0</td>
+                                                <td className="p-3 text-center">8.5</td>
+                                                <td className="p-3 text-center font-bold">8.8</td>
+                                                <td className="p-3 text-center">98%</td>
+                                                <td className="p-3 text-center"><span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Aprovado</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+
+                    {/* Modais de Cadastro */}
+                    {modalTipo && (
+                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="font-bold text-lg text-gray-900">
+                                        {modalTipo === 'aviso' && 'Novo Aviso Escolar'}
+                                        {modalTipo === 'prova' && 'Agendar Nova Prova'}
+                                        {modalTipo === 'evento' && 'Adicionar Evento no Calendário'}
+                                    </h3>
+                                    <button onClick={() => setModalTipo(null)} className="text-gray-400 hover:text-gray-600">
+                                        <i data-lucide="x" className="w-5 h-5"></i>
+                                    </button>
+                                </div>
+
+                                {modalTipo === 'aviso' && (
+                                    <form onSubmit={adicionarAviso} className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Título</label>
+                                            <input type="text" value={novoTitulo} onChange={e => setNovoTitulo(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: Passeio Cultural" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Prioridade</label>
+                                            <select value={novaPrioridade} onChange={e => setNovaPrioridade(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm bg-white">
+                                                <option value="Urgente">Urgente</option>
+                                                <option value="Média">Média</option>
+                                                <option value="Informativo">Informativo</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Conteúdo do Aviso</label>
+                                            <textarea value={novoTexto} onChange={e => setNovoTexto(e.target.value)} required rows="3" className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Detalhes do aviso..."></textarea>
+                                        </div>
+                                        <div className="flex justify-end gap-2 pt-2">
+                                            <button type="button" onClick={() => setModalTipo(null)} className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+                                            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Salvar Aviso</button>
+                                        </div>
+                                    </form>
+                                )}
+
+                                {modalTipo === 'prova' && (
+                                    <form onSubmit={adicionarProva} className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Disciplina</label>
+                                            <input type="text" value={novaDisciplina} onChange={e => setNovaDisciplina(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: Biologia" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-xs font-semibold text-gray-600 mb-1">Data</label>
+                                                <input type="text" value={novaData} onChange={e => setNovaData(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: 25/11/2026" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-semibold text-gray-600 mb-1">Horário</label>
+                                                <input type="text" value={novoHorario} onChange={e => setNovoHorario(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: 08:00" />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-xs font-semibold text-gray-600 mb-1">Sala</label>
+                                                <input type="text" value={novaSala} onChange={e => setNovoSala(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: Sala 202" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-semibold text-gray-600 mb-1">Peso</label>
+                                                <input type="text" value={novoPeso} onChange={e => setNovoPeso(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: 3.0" />
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-end gap-2 pt-2">
+                                            <button type="button" onClick={() => setModalTipo(null)} className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+                                            <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">Salvar Prova</button>
+                                        </div>
+                                    </form>
+                                )}
+
+                                {modalTipo === 'evento' && (
+                                    <form onSubmit={adicionarEvento} className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Título do Evento</label>
+                                            <input type="text" value={novoEvento} onChange={e => setNovoEvento(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: Feira Literária" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Data</label>
+                                            <input type="text" value={novaData} onChange={e => setNovaData(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: 28/11/2026" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Tipo</label>
+                                            <select value={novoTipoEvento} onChange={e => setNovoTipoEvento(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm bg-white">
+                                                <option value="Avaliação">Avaliação</option>
+                                                <option value="Feriado">Feriado</option>
+                                                <option value="Gestão">Gestão</option>
+                                            </select>
+                                        </div>
+                                        <div className="flex justify-end gap-2 pt-2">
+                                            <button type="button" onClick={() => setModalTipo(null)} className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+                                            <button type="submit" className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">Salvar Evento</button>
+                                        </div>
+                                    </form>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
