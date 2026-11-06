@@ -28,23 +28,91 @@
             const [inputPassword, setInputPassword] = React.useState('');
             const [loginError, setLoginError] = React.useState('');
 
-            // Dados editáveis (Gestão)
+            // Estado para Formulário de Cadastro de Aluno
+            const [cadNome, setCadNome] = React.useState('');
+            const [cadEmail, setCadEmail] = React.useState('');
+            const [cadTurma, setCadTurma] = React.useState('3º Ano Ensino Médio A');
+            const [cadResp, setCadResp] = React.useState('');
+            const [cadUser, setCadUser] = React.useState('');
+            const [cadPass, setCadPass] = React.useState('');
+            const [cadMsg, setCadMsg] = React.useState('');
+
+            // Base de Alunos com Boletim Individual Integrado
+            const [alunos, setAlunos] = React.useState([
+                { 
+                    id: 1, 
+                    nome: 'Lucas Silva', 
+                    username: 'aluno', 
+                    email: 'lucas@escola.com', 
+                    turma: '3º Ano Ensino Médio A', 
+                    responsavel: 'Maria Silva', 
+                    status: 'Aprovado',
+                    boletim: [
+                        { id: 101, disciplina: 'Matemática', bim1: '8.5', bim2: '7.5', frequencia: '95' },
+                        { id: 102, disciplina: 'Física', bim1: '6.0', bim2: '7.0', frequencia: '90' }
+                    ]
+                },
+                { 
+                    id: 2, 
+                    nome: 'Ana Beatriz Souza', 
+                    username: 'anabeatriz', 
+                    email: 'ana@escola.com', 
+                    turma: '2º Ano Ensino Médio B', 
+                    responsavel: 'Carlos Souza', 
+                    status: 'Aprovado',
+                    boletim: [
+                        { id: 103, disciplina: 'História', bim1: '9.0', bim2: '8.5', frequencia: '98' }
+                    ]
+                },
+                { 
+                    id: 3, 
+                    nome: 'Gabriel Santos', 
+                    username: 'gabriel', 
+                    email: 'gabriel@escola.com', 
+                    turma: '1º Ano Ensino Médio A', 
+                    responsavel: 'Juliana Santos', 
+                    status: 'Pendente',
+                    boletim: []
+                }
+            ]);
+
+            // Aluno Atualmente Selecionado para Edição de Notas (Painel da Gestão)
+            const [alunoSelecionadoId, setAlunoSelecionadoId] = React.useState(null);
+
+            // Estados para edição/adição de disciplinas no Boletim
+            const [novaDiscNome, setNovaDiscNome] = React.useState('');
+            const [novaDiscBim1, setNovaDiscBim1] = React.useState('');
+            const [novaDiscBim2, setNovaDiscBim2] = React.useState('');
+            const [novaDiscFreq, setNovaDiscFreq] = React.useState('');
+
+            // Mural de Avisos
             const [avisos, setAvisos] = React.useState([
-                { id: 1, titulo: 'Feira de Ciências 2026', prioridade: 'Urgente', autor: 'Direção', texto: 'Inscrições abertas para os projetos até a próxima sexta-feira.' },
-                { id: 2, titulo: 'Reunião de Pais e Mestres', prioridade: 'Média', autor: 'Coordenação', texto: 'Acontecerá no auditório principal no dia 15 às 19h.' },
-                { id: 3, titulo: 'Manutenção na Rede', prioridade: 'Informativo', autor: 'TI', texto: 'A internet do laboratório estará instável na terça-feira.' }
+                { 
+                    id: 1, 
+                    titulo: 'Feira de Ciências 2026', 
+                    prioridade: 'Urgente', 
+                    autor: 'Direção', 
+                    texto: 'Inscrições abertas para os projetos até a próxima sexta-feira.',
+                    imagem: 'https://images.unsplash.com/photo-1564069114553-74243c427202?auto=format&fit=crop&w=800&q=80'
+                },
+                { 
+                    id: 2, 
+                    titulo: 'Reunião de Pais e Mestres', 
+                    prioridade: 'Média', 
+                    autor: 'Coordenação', 
+                    texto: 'Acontecerá no auditório principal no dia 15 às 19h.',
+                    imagem: ''
+                }
             ]);
 
             const [provas, setProvas] = React.useState([
                 { id: 1, disciplina: 'Matemática', data: '12/11/2026', horario: '08:00', sala: 'Sala 101', peso: '3.0' },
-                { id: 2, disciplina: 'Física', data: '14/11/2026', horario: '10:00', sala: 'Laboratório 2', peso: '2.5' },
-                { id: 3, disciplina: 'História', data: '18/11/2026', horario: '08:30', sala: 'Sala 103', peso: '2.0' }
+                { id: 2, disciplina: 'Física', data: '14/11/2026', horario: '10:00', sala: 'Laboratório 2', peso: '2.5' }
             ]);
 
             const [calendario, setCalendario] = React.useState([
                 { id: 1, data: '10/11/2026', evento: 'Início das Provas Bimestrais', tipo: 'Avaliação' },
-                { id: 2, data: '20/11/2026', evento: 'Feriado: Consciência Negra', tipo: 'Feriado' },
-                { id: 3, data: '30/11/2026', evento: 'Conselho de Classe', tipo: 'Gestão' }
+                { id: 2, data: '20/11/2026', evento: 'Feriado: Consciência Negra', tipo: 'Feriado' }
             ]);
 
             // Modais de Cadastro
@@ -52,19 +120,18 @@
             const [novoTitulo, setNovoTitulo] = React.useState('');
             const [novoTexto, setNovoTexto] = React.useState('');
             const [novaPrioridade, setNovaPrioridade] = React.useState('Média');
+            const [novaImagem, setNovaImagem] = React.useState('');
             const [novaDisciplina, setNovaDisciplina] = React.useState('');
             const [novaData, setNovaData] = React.useState('');
             const [novoHorario, setNovoHorario] = React.useState('');
             const [novaSala, setNovaSala] = React.useState('');
             const [novoPeso, setNovoPeso] = React.useState('2.0');
-            const [novoEvento, setNovoEvento] = React.useState('');
-            const [novoTipoEvento, setNovoTipoEvento] = React.useState('Avaliação');
 
             React.useEffect(() => {
                 if (window.lucide) {
                     window.lucide.createIcons();
                 }
-            }, [user, currentTab, modalTipo, loginError]);
+            }, [user, currentTab, modalTipo, loginError, alunos, alunoSelecionadoId]);
 
             // Autenticação com Login e Senha
             const handleLoginSubmit = (e) => {
@@ -75,28 +142,130 @@
                 const p = inputPassword.trim();
 
                 if (u === 'admin' && p === '123') {
-                    setUser({ name: 'Diretor Carlos', role: 'admin' });
+                    setUser({ name: 'Diretor Carlos', role: 'admin', username: 'admin' });
                     setInputUsername(''); setInputPassword('');
                     if (currentTab === 'login') setCurrentTab('home');
-                } else if (u === 'professor' && p === '123') {
-                    setUser({ name: 'Profa. Mariana', role: 'teacher' });
+                    return;
+                } 
+                
+                if (u === 'professor' && p === '123') {
+                    setUser({ name: 'Profa. Mariana', role: 'teacher', username: 'professor' });
                     setInputUsername(''); setInputPassword('');
                     if (currentTab === 'login') setCurrentTab('home');
-                } else if (u === 'aluno' && p === '123') {
-                    setUser({ name: 'Lucas Silva (Aluno)', role: 'student' });
-                    setInputUsername(''); setInputPassword('');
-                    if (currentTab === 'login') setCurrentTab('home');
-                } else {
-                    setLoginError('Usuário ou senha incorretos. Verifique suas credenciais.');
+                    return;
                 }
+
+                // Busca na lista de alunos
+                const alunoEncontrado = alunos.find(a => a.username.toLowerCase() === u);
+
+                if (alunoEncontrado) {
+                    if (alunoEncontrado.status !== 'Aprovado') {
+                        setLoginError('Seu cadastro ainda está PENDENTE de aprovação pelo Administrador.');
+                        return;
+                    }
+                    if (p === '123' || p === alunoEncontrado.senha) {
+                        setUser({ 
+                            id: alunoEncontrado.id,
+                            name: alunoEncontrado.nome, 
+                            role: 'student', 
+                            username: alunoEncontrado.username,
+                            turma: alunoEncontrado.turma,
+                            email: alunoEncontrado.email,
+                            responsavel: alunoEncontrado.responsavel
+                        });
+                        setInputUsername(''); setInputPassword('');
+                        if (currentTab === 'login') setCurrentTab('home');
+                        return;
+                    }
+                }
+
+                setLoginError('Usuário ou senha incorretos.');
             };
 
-            // Funções CRUD
+            // Solicitacao de Cadastro pelo Aluno
+            const handleSolicitarCadastro = (e) => {
+                e.preventDefault();
+                const novo = {
+                    id: Date.now(),
+                    nome: cadNome,
+                    email: cadEmail,
+                    turma: cadTurma,
+                    responsavel: cadResp,
+                    username: cadUser.trim().toLowerCase(),
+                    senha: cadPass,
+                    status: 'Pendente',
+                    boletim: []
+                };
+                setAlunos([...alunos, novo]);
+                setCadNome(''); setCadEmail(''); setCadResp(''); setCadUser(''); setCadPass('');
+                setCadMsg('Solicitação enviada com sucesso! Aguarde a aprovação da gestão escolar.');
+            };
+
+            // Gestão de Alunos
+            const aprovarAluno = (id) => setAlunos(alunos.map(a => a.id === id ? { ...a, status: 'Aprovado' } : a));
+            const recusarAluno = (id) => setAlunos(alunos.filter(a => a.id !== id));
+
+            // Atualização de Notas/Frequência do Boletim por Matéria
+            const atualizarMateriaBoletim = (alunoId, materiaId, campo, valor) => {
+                setAlunos(alunos.map(aluno => {
+                    if (aluno.id === alunoId) {
+                        const novoBoletim = aluno.boletim.map(item => {
+                            if (item.id === materiaId) {
+                                return { ...item, [campo]: valor };
+                            }
+                            return item;
+                        });
+                        return { ...aluno, boletim: novoBoletim };
+                    }
+                    return aluno;
+                }));
+            };
+
+            // Adicionar nova disciplina ao boletim do aluno
+            const adicionarDisciplinaAoAluno = (e, alunoId) => {
+                e.preventDefault();
+                if (!novaDiscNome) return;
+                
+                const novaMat = {
+                    id: Date.now(),
+                    disciplina: novaDiscNome,
+                    bim1: novaDiscBim1 || '0.0',
+                    bim2: novaDiscBim2 || '0.0',
+                    frequencia: novaDiscFreq || '100'
+                };
+
+                setAlunos(alunos.map(aluno => {
+                    if (aluno.id === alunoId) {
+                        return { ...aluno, boletim: [...aluno.boletim, novaMat] };
+                    }
+                    return aluno;
+                }));
+
+                setNovaDiscNome(''); setNovaDiscBim1(''); setNovaDiscBim2(''); setNovaDiscFreq('');
+            };
+
+            const removerMateriaBoletim = (alunoId, materiaId) => {
+                setAlunos(alunos.map(aluno => {
+                    if (aluno.id === alunoId) {
+                        return { ...aluno, boletim: aluno.boletim.filter(m => m.id !== materiaId) };
+                    }
+                    return aluno;
+                }));
+            };
+
+            // Cálculo da média individual
+            const calcularMedia = (n1, n2) => {
+                const v1 = parseFloat(n1) || 0;
+                const v2 = parseFloat(n2) || 0;
+                return ((v1 + v2) / 2).toFixed(1);
+            };
+
+            // CRUD Geral
             const adicionarAviso = (e) => {
                 e.preventDefault();
                 if (!novoTitulo || !novoTexto) return;
-                setAvisos([...avisos, { id: Date.now(), titulo: novoTitulo, texto: novoTexto, prioridade: novaPrioridade, autor: user?.name || 'Gestão' }]);
-                setNovoTitulo(''); setNovoTexto(''); setModalTipo(null);
+                setAvisos([...avisos, { id: Date.now(), titulo: novoTitulo, texto: novoTexto, prioridade: novaPrioridade, imagem: novaImagem, autor: user?.name || 'Gestão' }]);
+                setNovoTitulo(''); setNovoTexto(''); setNovaImagem(''); setModalTipo(null);
             };
 
             const adicionarProva = (e) => {
@@ -106,19 +275,15 @@
                 setNovaDisciplina(''); setNovaData(''); setModalTipo(null);
             };
 
-            const adicionarEvento = (e) => {
-                e.preventDefault();
-                if (!novoEvento || !novaData) return;
-                setCalendario([...calendario, { id: Date.now(), data: novaData, evento: novoEvento, tipo: novoTipoEvento }]);
-                setNovoEvento(''); setNovaData(''); setModalTipo(null);
-            };
-
             const removerAviso = (id) => setAvisos(avisos.filter(a => a.id !== id));
             const removerProva = (id) => setProvas(provas.filter(p => p.id !== id));
 
+            const alunoEdicaoAtual = alunos.find(a => a.id === alunoSelecionadoId);
+            const alunoLogadoDados = alunos.find(a => a.id === user?.id) || alunos.find(a => a.username === user?.username);
+
             return (
                 <div className="min-h-screen flex flex-col bg-gray-50">
-                    {/* Header com Opção de Login Visível em Todas as Páginas */}
+                    {/* Header */}
                     <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
                         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -145,7 +310,6 @@
                                 </button>
                             </nav>
 
-                            {/* Botão de Entrar / Perfil no Cabeçalho */}
                             <div className="flex items-center gap-3 border-l pl-3 border-gray-200">
                                 {user ? (
                                     <div className="flex items-center gap-2">
@@ -153,7 +317,7 @@
                                             <p className="text-xs font-semibold text-gray-900">{user.name}</p>
                                             <p className="text-[10px] text-gray-500 uppercase">{user.role}</p>
                                         </div>
-                                        <button onClick={() => setUser(null)} title="Sair" className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition">
+                                        <button onClick={() => { setUser(null); setAlunoSelecionadoId(null); }} title="Sair" className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition">
                                             <i data-lucide="log-out" className="w-5 h-5"></i>
                                         </button>
                                     </div>
@@ -171,7 +335,7 @@
 
                     {/* Conteúdo Principal */}
                     <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8">
-                        {/* PÁGINA INICIAL (Pública / Mural) */}
+                        {/* INÍCIO */}
                         {currentTab === 'home' && (
                             <div className="space-y-8">
                                 <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -185,50 +349,49 @@
                                 </div>
 
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                    {/* Mural de Avisos */}
+                                    {/* Mural de Avisos com Imagem */}
                                     <div className="lg:col-span-2 space-y-4">
                                         <div className="flex justify-between items-center">
                                             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                                 <i data-lucide="bell" className="w-5 h-5 text-blue-600"></i> Mural de Avisos
                                             </h3>
-                                            {user?.role === 'admin' && (
+                                            {(user?.role === 'admin' || user?.role === 'teacher') && (
                                                 <button onClick={() => setModalTipo('aviso')} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-1">
                                                     <i data-lucide="plus" className="w-3.5 h-3.5"></i> Novo Aviso
                                                 </button>
                                             )}
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             {avisos.map(aviso => (
-                                                <div key={aviso.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                                                <div key={aviso.id} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col justify-between">
                                                     <div>
-                                                        <div className="flex justify-between items-start mb-2">
-                                                            <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase ${aviso.prioridade === 'Urgente' ? 'bg-red-100 text-red-700' : aviso.prioridade === 'Média' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
-                                                                {aviso.prioridade}
-                                                            </span>
-                                                            <span className="text-xs text-gray-400">Por {aviso.autor}</span>
+                                                        {aviso.imagem && (
+                                                            <div className="h-40 w-full bg-gray-100 overflow-hidden">
+                                                                <img src={aviso.imagem} alt={aviso.titulo} className="w-full h-full object-cover" />
+                                                            </div>
+                                                        )}
+                                                        <div className="p-5">
+                                                            <div className="flex justify-between items-start mb-2">
+                                                                <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase ${aviso.prioridade === 'Urgente' ? 'bg-red-100 text-red-700' : aviso.prioridade === 'Média' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                                    {aviso.prioridade}
+                                                                </span>
+                                                                <span className="text-xs text-gray-400">Por {aviso.autor}</span>
+                                                            </div>
+                                                            <h4 className="font-bold text-gray-900 text-base mb-1">{aviso.titulo}</h4>
+                                                            <p className="text-xs text-gray-600 leading-relaxed">{aviso.texto}</p>
                                                         </div>
-                                                        <h4 className="font-bold text-gray-900 text-base mb-1">{aviso.titulo}</h4>
-                                                        <p className="text-xs text-gray-600 leading-relaxed">{aviso.texto}</p>
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
 
-                                    {/* Provas do Semestre */}
+                                    {/* Provas */}
                                     <div className="space-y-4">
-                                        <div className="flex justify-between items-center">
-                                            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                                <i data-lucide="file-text" className="w-5 h-5 text-indigo-600"></i> Provas do Semestre
-                                            </h3>
-                                            {user?.role === 'admin' && (
-                                                <button onClick={() => setModalTipo('prova')} className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition flex items-center gap-1">
-                                                    <i data-lucide="plus" className="w-3.5 h-3.5"></i> Agendar
-                                                </button>
-                                            )}
-                                        </div>
-
+                                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                            <i data-lucide="file-text" className="w-5 h-5 text-indigo-600"></i> Provas do Semestre
+                                        </h3>
                                         <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
                                             {provas.map(prova => (
                                                 <div key={prova.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition">
@@ -246,137 +409,189 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Calendário Escolar */}
-                                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                            <i data-lucide="calendar-days" className="w-5 h-5 text-emerald-600"></i> Calendário Escolar
-                                        </h3>
-                                        {user?.role === 'admin' && (
-                                            <button onClick={() => setModalTipo('evento')} className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-emerald-700 transition flex items-center gap-1">
-                                                <i data-lucide="plus" className="w-3.5 h-3.5"></i> Adicionar Evento
-                                            </button>
-                                        )}
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        {calendario.map(item => (
-                                            <div key={item.id} className="p-4 rounded-xl border border-gray-100 bg-gray-50 flex items-start gap-3">
-                                                <div className="p-2.5 bg-emerald-100 text-emerald-700 rounded-lg">
-                                                    <i data-lucide="calendar" className="w-5 h-5"></i>
-                                                </div>
-                                                <div>
-                                                    <span className="text-[10px] font-bold text-emerald-700 uppercase bg-emerald-50 px-2 py-0.5 rounded">{item.tipo}</span>
-                                                    <h4 className="font-semibold text-sm text-gray-900 mt-1">{item.evento}</h4>
-                                                    <p className="text-xs text-gray-500 mt-0.5">Data: {item.data}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
                             </div>
                         )}
 
-                        {/* FORMULÁRIO DE LOGIN (Sem exibição de senha abaixo) */}
+                        {/* TELA DE LOGIN / CADASTRO */}
                         {(!user && (currentTab === 'students' || currentTab === 'grades' || currentTab === 'management' || currentTab === 'login')) && (
-                            <div className="max-w-md mx-auto my-12 bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
-                                <div className="text-center mb-6">
-                                    <div className="inline-flex p-3 bg-blue-100 text-blue-600 rounded-xl mb-3">
-                                        <i data-lucide="lock" className="w-8 h-8"></i>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-6">
+                                <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 sm:p-8">
+                                    <div className="text-center mb-6">
+                                        <div className="inline-flex p-3 bg-blue-100 text-blue-600 rounded-xl mb-3">
+                                            <i data-lucide="lock" className="w-6 h-6"></i>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-900">Acesso ao Sistema</h3>
+                                        <p className="text-xs text-gray-500 mt-1">Informe suas credenciais registradas.</p>
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-900">Acesso ao Sistema</h3>
-                                    <p className="text-xs text-gray-500 mt-1">Insira seu usuário e senha para acessar sua conta.</p>
+
+                                    {loginError && (
+                                        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg flex items-center gap-2">
+                                            <i data-lucide="alert-circle" className="w-4 h-4 shrink-0"></i>
+                                            <span>{loginError}</span>
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleLoginSubmit} className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-700 mb-1">Usuário</label>
+                                            <input type="text" value={inputUsername} onChange={e => setInputUsername(e.target.value)} required placeholder="Digite seu usuário" className="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-700 mb-1">Senha</label>
+                                            <input type="password" value={inputPassword} onChange={e => setInputPassword(e.target.value)} required placeholder="••••••••" className="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <button type="submit" className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-md transition">
+                                            Entrar no Sistema
+                                        </button>
+                                    </form>
                                 </div>
 
-                                {loginError && (
-                                    <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg flex items-center gap-2">
-                                        <i data-lucide="alert-circle" className="w-4 h-4 shrink-0"></i>
-                                        <span>{loginError}</span>
+                                <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 sm:p-8">
+                                    <div className="text-center mb-6">
+                                        <div className="inline-flex p-3 bg-emerald-100 text-emerald-600 rounded-xl mb-3">
+                                            <i data-lucide="user-plus" className="w-6 h-6"></i>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-900">Novo Aluno? Cadastre-se</h3>
+                                        <p className="text-xs text-gray-500 mt-1">Preencha os dados para aprovação do gestor.</p>
                                     </div>
-                                )}
 
-                                <form onSubmit={handleLoginSubmit} className="space-y-4">
-                                    <div>
-                                        <label className="block text-xs font-semibold text-gray-700 mb-1">Usuário</label>
-                                        <input 
-                                            type="text" 
-                                            value={inputUsername} 
-                                            onChange={e => setInputUsername(e.target.value)} 
-                                            required 
-                                            placeholder="Digite seu usuário"
-                                            className="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-semibold text-gray-700 mb-1">Senha</label>
-                                        <input 
-                                            type="password" 
-                                            value={inputPassword} 
-                                            onChange={e => setInputPassword(e.target.value)} 
-                                            required 
-                                            placeholder="••••••••"
-                                            className="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                                        />
-                                    </div>
-                                    <button type="submit" className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-md transition">
-                                        Entrar no Sistema
-                                    </button>
-                                </form>
+                                    {cadMsg && (
+                                        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg flex items-center gap-2">
+                                            <i data-lucide="check-circle" className="w-4 h-4 shrink-0"></i>
+                                            <span>{cadMsg}</span>
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleSolicitarCadastro} className="space-y-3">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Nome Completo</label>
+                                                <input type="text" value={cadNome} onChange={e => setCadNome(e.target.value)} required placeholder="Ex: Mariana Lima" className="w-full p-2 border rounded-lg text-xs outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">E-mail</label>
+                                                <input type="email" value={cadEmail} onChange={e => setCadEmail(e.target.value)} required placeholder="mariana@email.com" className="w-full p-2 border rounded-lg text-xs outline-none" />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Turma</label>
+                                                <select value={cadTurma} onChange={e => setCadTurma(e.target.value)} className="w-full p-2 border rounded-lg text-xs bg-white">
+                                                    <option>3º Ano Ensino Médio A</option>
+                                                    <option>2º Ano Ensino Médio B</option>
+                                                    <option>1º Ano Ensino Médio A</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Responsável</label>
+                                                <input type="text" value={cadResp} onChange={e => setCadResp(e.target.value)} required placeholder="Nome do Responsável" className="w-full p-2 border rounded-lg text-xs outline-none" />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Usuário Desejado</label>
+                                                <input type="text" value={cadUser} onChange={e => setCadUser(e.target.value)} required placeholder="Ex: mariana2026" className="w-full p-2 border rounded-lg text-xs outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Senha</label>
+                                                <input type="password" value={cadPass} onChange={e => setCadPass(e.target.value)} required placeholder="••••••••" className="w-full p-2 border rounded-lg text-xs outline-none" />
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs rounded-lg shadow-sm transition mt-2">
+                                            Enviar Solicitação de Cadastro
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         )}
 
-                        {/* PÁGINA DE ALUNOS (Apenas para usuários autenticados) */}
+                        {/* PÁGINA DE ALUNOS */}
                         {user && currentTab === 'students' && (
                             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                     <div>
-                                        <h3 className="text-xl font-bold text-gray-900">Alunos & Turmas</h3>
-                                        <p className="text-sm text-gray-500">Lista geral de estudantes matriculados no ano letivo de 2026.</p>
+                                        <h3 className="text-xl font-bold text-gray-900">
+                                            {user.role === 'student' ? 'Meu Perfil de Aluno' : 'Lista Geral de Alunos'}
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            {user.role === 'student' ? 'Dados do seu cadastro aprovado na instituição.' : 'Estudantes matriculados no ano letivo de 2026.'}
+                                        </p>
                                     </div>
-                                    <span className="text-xs bg-blue-50 text-blue-700 font-semibold px-3 py-1.5 rounded-lg border border-blue-200">Total: 3 Alunos Exemplo</span>
+                                    <span className="text-xs bg-blue-50 text-blue-700 font-semibold px-3 py-1.5 rounded-lg border border-blue-200">
+                                        {user.role === 'student' ? 'Status: Matriculado (Ativo)' : `Total: ${alunos.filter(a => a.status === 'Aprovado').length} Alunos`}
+                                    </span>
                                 </div>
 
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left text-sm">
-                                        <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 text-xs uppercase tracking-wider">
-                                            <tr>
-                                                <th className="p-3">Estudante</th>
-                                                <th className="p-3">Turma</th>
-                                                <th className="p-3">Responsável</th>
-                                                <th className="p-3">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-100">
-                                            <tr className="hover:bg-gray-50">
-                                                <td className="p-3 font-medium text-gray-900">Lucas Silva</td>
-                                                <td className="p-3 text-gray-600">3º Ano Ensino Médio A</td>
-                                                <td className="p-3 text-gray-600">Maria Silva</td>
-                                                <td className="p-3"><span className="text-[10px] bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">Matriculado</span></td>
-                                            </tr>
-                                            <tr className="hover:bg-gray-50">
-                                                <td className="p-3 font-medium text-gray-900">Ana Beatriz Souza</td>
-                                                <td className="p-3 text-gray-600">2º Ano Ensino Médio B</td>
-                                                <td className="p-3 text-gray-600">Carlos Souza</td>
-                                                <td className="p-3"><span className="text-[10px] bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">Matriculado</span></td>
-                                            </tr>
-                                            <tr className="hover:bg-gray-50">
-                                                <td className="p-3 font-medium text-gray-900">Gabriel Santos</td>
-                                                <td className="p-3 text-gray-600">1º Ano Ensino Médio A</td>
-                                                <td className="p-3 text-gray-600">Juliana Santos</td>
-                                                <td className="p-3"><span className="text-[10px] bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full">Matriculado</span></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                {user.role === 'student' ? (
+                                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-6">
+                                        <div className="flex items-center gap-4 mb-6">
+                                            <div className="p-4 bg-blue-600 text-white rounded-2xl shadow-md">
+                                                <i data-lucide="user" className="w-8 h-8"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xl font-bold text-gray-900">{user.name}</h4>
+                                                <p className="text-xs text-blue-700 font-medium">Turma: {user.turma || '3º Ano Ensino Médio A'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                                            <div className="bg-white p-3.5 rounded-lg border border-gray-200">
+                                                <span className="text-gray-400 block font-medium">Responsável:</span>
+                                                <span className="font-semibold text-gray-800 text-sm">{user.responsavel || 'Maria Silva'}</span>
+                                            </div>
+                                            <div className="bg-white p-3.5 rounded-lg border border-gray-200">
+                                                <span className="text-gray-400 block font-medium">E-mail:</span>
+                                                <span className="font-semibold text-gray-800 text-sm">{user.email || 'aluno@escola.com'}</span>
+                                            </div>
+                                            <div className="bg-white p-3.5 rounded-lg border border-gray-200">
+                                                <span className="text-gray-400 block font-medium">Usuário:</span>
+                                                <span className="font-semibold text-gray-800 text-sm">{user.username}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-sm">
+                                            <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 text-xs uppercase">
+                                                <tr>
+                                                    <th className="p-3">Estudante</th>
+                                                    <th className="p-3">Usuário</th>
+                                                    <th className="p-3">Turma</th>
+                                                    <th className="p-3">Responsável</th>
+                                                    <th className="p-3">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {alunos.map(aluno => (
+                                                    <tr key={aluno.id} className="hover:bg-gray-50">
+                                                        <td className="p-3 font-medium text-gray-900">{aluno.nome}</td>
+                                                        <td className="p-3 text-gray-500 text-xs">{aluno.username}</td>
+                                                        <td className="p-3 text-gray-600">{aluno.turma}</td>
+                                                        <td className="p-3 text-gray-600">{aluno.responsavel}</td>
+                                                        <td className="p-3">
+                                                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${aluno.status === 'Aprovado' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                                {aluno.status}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
                         )}
 
-                        {/* PÁGINA DE NOTAS & FREQUÊNCIA (Apenas para usuários autenticados) */}
+                        {/* PÁGINA DE NOTAS & FREQUÊNCIA (Visualização do Aluno Logado) */}
                         {user && currentTab === 'grades' && (
                             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-900">Boletim Escolar & Frequência</h3>
-                                    <p className="text-sm text-gray-500">Acompanhamento de notas bimestrais e percentual de presença de {user.name}.</p>
+                                    <p className="text-sm text-gray-500">
+                                        {user.role === 'student' ? `Seu boletim oficial individual - ${user.name}` : 'Acompanhamento do boletim por perfil.'}
+                                    </p>
                                 </div>
 
                                 <div className="overflow-x-auto">
@@ -384,102 +599,213 @@
                                         <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 text-xs uppercase tracking-wider">
                                             <tr>
                                                 <th className="p-3">Disciplina</th>
-                                                <th className="p-3 text-center">1º Bim</th>
-                                                <th className="p-3 text-center">2º Bim</th>
+                                                <th className="p-3 text-center">1º Bimestre</th>
+                                                <th className="p-3 text-center">2º Bimestre</th>
                                                 <th className="p-3 text-center">Média Parcial</th>
-                                                <th className="p-3 text-center">Frequência</th>
+                                                <th className="p-3 text-center">Frequência (%)</th>
                                                 <th className="p-3 text-center">Situação</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
-                                            <tr className="hover:bg-gray-50">
-                                                <td className="p-3 font-medium text-gray-900">Matemática</td>
-                                                <td className="p-3 text-center">8.5</td>
-                                                <td className="p-3 text-center">7.5</td>
-                                                <td className="p-3 text-center font-bold">8.0</td>
-                                                <td className="p-3 text-center">95%</td>
-                                                <td className="p-3 text-center"><span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Aprovado</span></td>
-                                            </tr>
-                                            <tr className="hover:bg-gray-50">
-                                                <td className="p-3 font-medium text-gray-900">Física</td>
-                                                <td className="p-3 text-center">6.0</td>
-                                                <td className="p-3 text-center">7.0</td>
-                                                <td className="p-3 text-center font-bold">6.5</td>
-                                                <td className="p-3 text-center">90%</td>
-                                                <td className="p-3 text-center"><span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Aprovado</span></td>
-                                            </tr>
-                                            <tr className="hover:bg-gray-50">
-                                                <td className="p-3 font-medium text-gray-900">História</td>
-                                                <td className="p-3 text-center">9.0</td>
-                                                <td className="p-3 text-center">8.5</td>
-                                                <td className="p-3 text-center font-bold">8.8</td>
-                                                <td className="p-3 text-center">98%</td>
-                                                <td className="p-3 text-center"><span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Aprovado</span></td>
-                                            </tr>
+                                            {alunoLogadoDados && alunoLogadoDados.boletim.length > 0 ? (
+                                                alunoLogadoDados.boletim.map(item => {
+                                                    const media = calcularMedia(item.bim1, item.bim2);
+                                                    const aprovado = parseFloat(media) >= 6.0;
+                                                    return (
+                                                        <tr key={item.id} className="hover:bg-gray-50">
+                                                            <td className="p-3 font-medium text-gray-900">{item.disciplina}</td>
+                                                            <td className="p-3 text-center">{item.bim1}</td>
+                                                            <td className="p-3 text-center">{item.bim2}</td>
+                                                            <td className="p-3 text-center font-bold text-gray-900">{media}</td>
+                                                            <td className="p-3 text-center">{item.frequencia}%</td>
+                                                            <td className="p-3 text-center">
+                                                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${aprovado ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                                    {aprovado ? 'Aprovado' : 'Em Recuperação'}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="6" className="p-4 text-center text-xs text-gray-400">Nenhuma nota lançada até o momento.</td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         )}
 
-                        {/* PÁGINA DE GESTÃO ESCOLAR (Administradores/Professores) */}
+                        {/* GESTÃO ESCOLAR (COM PÁGINA EXCLUSIVA DE EDICAO DE NOTAS/FALTAS POR ALUNO) */}
                         {user && (user.role === 'admin' || user.role === 'teacher') && currentTab === 'management' && (
-                            <div className="space-y-6">
+                            <div className="space-y-8">
                                 <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Painel de Gestão Escolar</h3>
-                                    <p className="text-sm text-gray-500">Gerencie avisos, adicione datas ao calendário oficial e controle o cronograma de avaliações.</p>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-1">Painel de Gestão Escolar</h3>
+                                    <p className="text-sm text-gray-500">Aprove cadastros, gerencie páginas exclusivas de notas de cada aluno e publique avisos.</p>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="bell" className="w-4 h-4 text-blue-600"></i> Avisos Ativos</h4>
-                                            <button onClick={() => setModalTipo('aviso')} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg">Novo Aviso</button>
-                                        </div>
-                                        <div className="space-y-3">
-                                            {avisos.map(a => (
-                                                <div key={a.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
-                                                    <div>
-                                                        <span className="font-bold text-gray-900">{a.titulo}</span>
-                                                        <p className="text-gray-500 mt-0.5 truncate max-w-[200px] sm:max-w-xs">{a.texto}</p>
-                                                    </div>
-                                                    <button onClick={() => removerAviso(a.id)} className="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" className="w-4 h-4"></i></button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
+                                {/* Central de Aprovação e Gestão por Aluno */}
+                                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+                                    <h4 className="font-bold text-gray-900 flex items-center gap-2 text-base">
+                                        <i data-lucide="user-check" className="w-5 h-5 text-emerald-600"></i> Central de Aprovação & Páginas Exclusivas dos Alunos
+                                    </h4>
 
-                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="file-text" className="w-4 h-4 text-indigo-600"></i> Provas Cadastradas</h4>
-                                            <button onClick={() => setModalTipo('prova')} className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg">Nova Prova</button>
-                                        </div>
-                                        <div className="space-y-3">
-                                            {provas.map(p => (
-                                                <div key={p.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
-                                                    <div>
-                                                        <span className="font-bold text-gray-900">{p.disciplina}</span>
-                                                        <p className="text-gray-500 mt-0.5">{p.data} - {p.sala}</p>
-                                                    </div>
-                                                    <button onClick={() => removerProva(p.id)} className="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" className="w-4 h-4"></i></button>
-                                                </div>
-                                            ))}
-                                        </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-sm">
+                                            <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 text-xs uppercase">
+                                                <tr>
+                                                    <th className="p-3">Nome</th>
+                                                    <th className="p-3">Turma</th>
+                                                    <th className="p-3">Responsável</th>
+                                                    <th className="p-3">Status</th>
+                                                    <th className="p-3 text-right">Ação / Página de Notas</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {alunos.map(item => (
+                                                    <tr key={item.id} className="hover:bg-gray-50">
+                                                        <td className="p-3 font-medium text-gray-900">{item.nome}</td>
+                                                        <td className="p-3 text-xs text-gray-600">{item.turma}</td>
+                                                        <td className="p-3 text-xs text-gray-600">{item.responsavel}</td>
+                                                        <td className="p-3">
+                                                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.status === 'Aprovado' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                                {item.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3 text-right">
+                                                            {item.status === 'Pendente' ? (
+                                                                <div className="flex justify-end gap-2">
+                                                                    <button onClick={() => aprovarAluno(item.id)} className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-semibold">
+                                                                        Aprovar
+                                                                    </button>
+                                                                    <button onClick={() => recusarAluno(item.id)} className="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded text-xs font-semibold">
+                                                                        Recusar
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <button 
+                                                                    onClick={() => setAlunoSelecionadoId(item.id)} 
+                                                                    className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition flex items-center gap-1 ml-auto">
+                                                                    <i data-lucide="edit-3" className="w-3.5 h-3.5"></i>
+                                                                    <span>Ver / Editar Boletim</span>
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
+
+                                {/* MODAL / PAINEL EXCLUSIVO DO ALUNO SELECIONADO PARA NOTAS */}
+                                {alunoEdicaoAtual && (
+                                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+                                        <div className="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-gray-100 my-8">
+                                            <div className="flex justify-between items-start border-b pb-4 mb-4">
+                                                <div>
+                                                    <span className="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded uppercase">Página Exclusiva de Notas</span>
+                                                    <h3 className="text-xl font-bold text-gray-900 mt-1">Boletim: {alunoEdicaoAtual.nome}</h3>
+                                                    <p className="text-xs text-gray-500">Turma: {alunoEdicaoAtual.turma} | Resp: {alunoEdicaoAtual.responsavel}</p>
+                                                </div>
+                                                <button onClick={() => setAlunoSelecionadoId(null)} className="p-1 text-gray-400 hover:text-gray-600">
+                                                    <i data-lucide="x" className="w-6 h-6"></i>
+                                                </button>
+                                            </div>
+
+                                            {/* Formulário para Adicionar Nova Disciplina ao Aluno */}
+                                            <form onSubmit={(e) => adicionarDisciplinaAoAluno(e, alunoEdicaoAtual.id)} className="bg-indigo-50/50 border border-indigo-100 p-4 rounded-xl mb-6 space-y-3">
+                                                <h4 className="text-xs font-bold text-indigo-900">Adicionar Nova Disciplina ao Aluno:</h4>
+                                                <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                                                    <input type="text" value={novaDiscNome} onChange={e => setNovaDiscNome(e.target.value)} required placeholder="Disciplina (ex: Química)" className="p-2 border rounded-lg text-xs" />
+                                                    <input type="number" step="0.1" value={novaDiscBim1} onChange={e => setNovaDiscBim1(e.target.value)} placeholder="Nota 1º Bim" className="p-2 border rounded-lg text-xs" />
+                                                    <input type="number" step="0.1" value={novaDiscBim2} onChange={e => setNovaDiscBim2(e.target.value)} placeholder="Nota 2º Bim" className="p-2 border rounded-lg text-xs" />
+                                                    <input type="number" value={novaDiscFreq} onChange={e => setNovaDiscFreq(e.target.value)} placeholder="Frequência %" className="p-2 border rounded-lg text-xs" />
+                                                </div>
+                                                <button type="submit" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold">
+                                                    + Lançar Disciplina
+                                                </button>
+                                            </form>
+
+                                            {/* Tabela de Lançamento Direto de Notas/Frequência */}
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-left text-sm">
+                                                    <thead className="bg-gray-100 text-gray-700 text-xs uppercase">
+                                                        <tr>
+                                                            <th className="p-3">Disciplina</th>
+                                                            <th className="p-3 text-center">1º Bimestre</th>
+                                                            <th className="p-3 text-center">2º Bimestre</th>
+                                                            <th className="p-3 text-center">Média Parcial</th>
+                                                            <th className="p-3 text-center">Frequência (%)</th>
+                                                            <th className="p-3 text-right">Ação</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100">
+                                                        {alunoEdicaoAtual.boletim.map(item => {
+                                                            const media = calcularMedia(item.bim1, item.bim2);
+                                                            return (
+                                                                <tr key={item.id} className="hover:bg-gray-50">
+                                                                    <td className="p-3 font-semibold text-gray-900 text-xs">{item.disciplina}</td>
+                                                                    <td className="p-3 text-center">
+                                                                        <input 
+                                                                            type="number" 
+                                                                            step="0.1" 
+                                                                            value={item.bim1} 
+                                                                            onChange={e => atualizarMateriaBoletim(alunoEdicaoAtual.id, item.id, 'bim1', e.target.value)} 
+                                                                            className="w-16 p-1 text-center border rounded text-xs font-medium"
+                                                                        />
+                                                                    </td>
+                                                                    <td className="p-3 text-center">
+                                                                        <input 
+                                                                            type="number" 
+                                                                            step="0.1" 
+                                                                            value={item.bim2} 
+                                                                            onChange={e => atualizarMateriaBoletim(alunoEdicaoAtual.id, item.id, 'bim2', e.target.value)} 
+                                                                            className="w-16 p-1 text-center border rounded text-xs font-medium"
+                                                                        />
+                                                                    </td>
+                                                                    <td className="p-3 text-center font-bold text-xs text-blue-700">{media}</td>
+                                                                    <td className="p-3 text-center">
+                                                                        <input 
+                                                                            type="number" 
+                                                                            value={item.frequencia} 
+                                                                            onChange={e => atualizarMateriaBoletim(alunoEdicaoAtual.id, item.id, 'frequencia', e.target.value)} 
+                                                                            className="w-16 p-1 text-center border rounded text-xs font-medium"
+                                                                        /> %
+                                                                    </td>
+                                                                    <td className="p-3 text-right">
+                                                                        <button onClick={() => removerMateriaBoletim(alunoEdicaoAtual.id, item.id)} className="text-red-500 hover:text-red-700 p-1">
+                                                                            <i data-lucide="trash-2" className="w-4 h-4"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <div className="flex justify-end mt-6 pt-4 border-t">
+                                                <button onClick={() => setAlunoSelecionadoId(null)} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">
+                                                    Concluir & Salvar Boletim
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </main>
 
-                    {/* Modais de Cadastro */}
+                    {/* MODAL DE CADASTRO */}
                     {modalTipo && (
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                             <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100">
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="font-bold text-lg text-gray-900">
-                                        {modalTipo === 'aviso' && 'Novo Aviso Escolar'}
+                                        {modalTipo === 'aviso' && 'Novo Aviso com Foto / Banner'}
                                         {modalTipo === 'prova' && 'Agendar Nova Prova'}
-                                        {modalTipo === 'evento' && 'Adicionar Evento no Calendário'}
                                     </h3>
                                     <button onClick={() => setModalTipo(null)} className="text-gray-400 hover:text-gray-600">
                                         <i data-lucide="x" className="w-5 h-5"></i>
@@ -490,7 +816,7 @@
                                     <form onSubmit={adicionarAviso} className="space-y-4">
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-600 mb-1">Título</label>
-                                            <input type="text" value={novoTitulo} onChange={e => setNovoTitulo(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm outline-none" placeholder="Ex: Passeio Cultural" />
+                                            <input type="text" value={novoTitulo} onChange={e => setNovoTitulo(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm outline-none" placeholder="Ex: Torneio Interclasses" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-600 mb-1">Prioridade</label>
@@ -499,6 +825,10 @@
                                                 <option value="Média">Média</option>
                                                 <option value="Informativo">Informativo</option>
                                             </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">URL da Foto / Banner (Opcional)</label>
+                                            <input type="url" value={novaImagem} onChange={e => setNovaImagem(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm outline-none" placeholder="https://exemplo.com/banner.jpg" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-600 mb-1">Conteúdo do Aviso</label>
@@ -527,44 +857,9 @@
                                                 <input type="text" value={novoHorario} onChange={e => setNovoHorario(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: 08:00" />
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div>
-                                                <label className="block text-xs font-semibold text-gray-600 mb-1">Sala</label>
-                                                <input type="text" value={novaSala} onChange={e => setNovaSala(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: Sala 202" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-semibold text-gray-600 mb-1">Peso</label>
-                                                <input type="text" value={novoPeso} onChange={e => setNovoPeso(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: 3.0" />
-                                            </div>
-                                        </div>
                                         <div className="flex justify-end gap-2 pt-2">
                                             <button type="button" onClick={() => setModalTipo(null)} className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
                                             <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">Salvar Prova</button>
-                                        </div>
-                                    </form>
-                                )}
-
-                                {modalTipo === 'evento' && (
-                                    <form onSubmit={adicionarEvento} className="space-y-4">
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Título do Evento</label>
-                                            <input type="text" value={novoEvento} onChange={e => setNovoEvento(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: Feira Literária" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Data</label>
-                                            <input type="text" value={novaData} onChange={e => setNovaData(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: 28/11/2026" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Tipo</label>
-                                            <select value={novoTipoEvento} onChange={e => setNovoTipoEvento(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm bg-white">
-                                                <option value="Avaliação">Avaliação</option>
-                                                <option value="Feriado">Feriado</option>
-                                                <option value="Gestão">Gestão</option>
-                                            </select>
-                                        </div>
-                                        <div className="flex justify-end gap-2 pt-2">
-                                            <button type="button" onClick={() => setModalTipo(null)} className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
-                                            <button type="submit" className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">Salvar Evento</button>
                                         </div>
                                     </form>
                                 )}
