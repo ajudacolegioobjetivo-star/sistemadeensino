@@ -19,10 +19,16 @@
 
     <script type="text/babel">
         function App() {
+            // Estado do usuário logado (Inicia como visitante público)
             const [user, setUser] = React.useState(null);
             const [currentTab, setCurrentTab] = React.useState('home');
 
-            // Estados de dados editáveis (Gestão)
+            // Formulário de Login
+            const [inputUsername, setInputUsername] = React.useState('');
+            const [inputPassword, setInputPassword] = React.useState('');
+            const [loginError, setLoginError] = React.useState('');
+
+            // Dados editáveis (Gestão)
             const [avisos, setAvisos] = React.useState([
                 { id: 1, titulo: 'Feira de Ciências 2026', prioridade: 'Urgente', autor: 'Direção', texto: 'Inscrições abertas para os projetos até a próxima sexta-feira.' },
                 { id: 2, titulo: 'Reunião de Pais e Mestres', prioridade: 'Média', autor: 'Coordenação', texto: 'Acontecerá no auditório principal no dia 15 às 19h.' },
@@ -41,8 +47,8 @@
                 { id: 3, data: '30/11/2026', evento: 'Conselho de Classe', tipo: 'Gestão' }
             ]);
 
-            // Estados para modais de cadastro
-            const [modalTipo, setModalTipo] = React.useState(null); // 'aviso', 'prova', 'evento'
+            // Modais de Cadastro
+            const [modalTipo, setModalTipo] = React.useState(null);
             const [novoTitulo, setNovoTitulo] = React.useState('');
             const [novoTexto, setNovoTexto] = React.useState('');
             const [novaPrioridade, setNovaPrioridade] = React.useState('Média');
@@ -58,7 +64,29 @@
                 if (window.lucide) {
                     window.lucide.createIcons();
                 }
-            }, [user, currentTab, modalTipo]);
+            }, [user, currentTab, modalTipo, loginError]);
+
+            // Autenticação com Login e Senha
+            const handleLoginSubmit = (e) => {
+                e.preventDefault();
+                setLoginError('');
+
+                const u = inputUsername.trim().toLowerCase();
+                const p = inputPassword.trim();
+
+                if (u === 'admin' && p === '123') {
+                    setUser({ name: 'Diretor Carlos', role: 'admin' });
+                    setInputUsername(''); setInputPassword('');
+                } else if (u === 'professor' && p === '123') {
+                    setUser({ name: 'Profa. Mariana', role: 'teacher' });
+                    setInputUsername(''); setInputPassword('');
+                } else if (u === 'aluno' && p === '123') {
+                    setUser({ name: 'Lucas Silva (Aluno)', role: 'student' });
+                    setInputUsername(''); setInputPassword('');
+                } else {
+                    setLoginError('Usuário ou senha incorretos. Verifique suas credenciais.');
+                }
+            };
 
             // Funções CRUD
             const adicionarAviso = (e) => {
@@ -86,45 +114,6 @@
             const removerProva = (id) => setProvas(provas.filter(p => p.id !== id));
             const removerEvento = (id) => setCalendario(calendario.filter(c => c.id !== id));
 
-            // Se não estiver logado, exibe tela de login
-            if (!user) {
-                return (
-                    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 flex items-center justify-center p-4">
-                        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-md w-full p-8 border border-white/20">
-                            <div className="text-center mb-8">
-                                <div className="inline-flex p-3 bg-blue-600 text-white rounded-xl shadow-lg mb-4">
-                                    <i data-lucide="graduation-cap" className="w-8 h-8"></i>
-                                </div>
-                                <h1 className="text-2xl font-bold text-gray-900">Sistema Escolar</h1>
-                                <p className="text-sm text-gray-500 mt-1">Faça login para acessar o portal</p>
-                            </div>
-
-                            <div className="space-y-3">
-                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Acesso Rápido por Perfil:</p>
-                                <button 
-                                    onClick={() => setUser({ name: 'Diretor Carlos', role: 'admin' })}
-                                    className="w-full flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-xl transition border border-blue-200">
-                                    <span className="flex items-center gap-2"><i data-lucide="shield-check" className="w-5 h-5"></i> Administrador / Gestão</span>
-                                    <span className="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded">Total</span>
-                                </button>
-                                <button 
-                                    onClick={() => setUser({ name: 'Profa. Mariana', role: 'teacher' })}
-                                    className="w-full flex items-center justify-between p-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded-xl transition border border-emerald-200">
-                                    <span className="flex items-center gap-2"><i data-lucide="book-open" className="w-5 h-5"></i> Professor</span>
-                                    <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded">Parcial</span>
-                                </button>
-                                <button 
-                                    onClick={() => setUser({ name: 'Lucas Silva (Aluno)', role: 'student' })}
-                                    className="w-full flex items-center justify-between p-3 bg-amber-50 hover:bg-amber-100 text-amber-700 font-medium rounded-xl transition border border-amber-200">
-                                    <span className="flex items-center gap-2"><i data-lucide="user" className="w-5 h-5"></i> Aluno / Responsável</span>
-                                    <span className="text-xs bg-amber-200 text-amber-800 px-2 py-0.5 rounded">Leitura</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                );
-            }
-
             return (
                 <div className="min-h-screen flex flex-col bg-gray-50">
                     {/* Header */}
@@ -141,7 +130,7 @@
                                 <button onClick={() => setCurrentTab('home')} className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 ${currentTab === 'home' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
                                     <i data-lucide="home" className="w-4 h-4"></i> Início
                                 </button>
-                                {(user.role === 'admin' || user.role === 'teacher') && (
+                                {(user?.role === 'admin' || user?.role === 'teacher') && (
                                     <button onClick={() => setCurrentTab('management')} className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 ${currentTab === 'management' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}>
                                         <i data-lucide="settings" className="w-4 h-4"></i> Gestão Escolar
                                     </button>
@@ -155,26 +144,34 @@
                             </nav>
 
                             <div className="flex items-center gap-3 border-l pl-4 border-gray-200">
-                                <div className="text-right hidden md:block">
-                                    <p className="text-xs font-semibold text-gray-900">{user.name}</p>
-                                    <p className="text-[10px] text-gray-500 uppercase">{user.role}</p>
-                                </div>
-                                <button onClick={() => setUser(null)} title="Sair" className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition">
-                                    <i data-lucide="log-out" className="w-5 h-5"></i>
-                                </button>
+                                {user ? (
+                                    <>
+                                        <div className="text-right hidden md:block">
+                                            <p className="text-xs font-semibold text-gray-900">{user.name}</p>
+                                            <p className="text-[10px] text-gray-500 uppercase">{user.role}</p>
+                                        </div>
+                                        <button onClick={() => setUser(null)} title="Sair" className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition">
+                                            <i data-lucide="log-out" className="w-5 h-5"></i>
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button onClick={() => setCurrentTab('login')} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition flex items-center gap-1">
+                                        <i data-lucide="lock" className="w-3.5 h-3.5"></i> Entrar
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </header>
 
                     {/* Conteúdo Principal */}
                     <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8">
+                        {/* PÁGINA INICIAL (Pública / Mural) */}
                         {currentTab === 'home' && (
                             <div className="space-y-8">
-                                {/* Boas-vindas */}
                                 <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                     <div>
-                                        <h2 className="text-2xl font-bold">Olá, {user.name}!</h2>
-                                        <p className="text-blue-100 text-sm mt-1">Confira abaixo os avisos recentes, cronograma de provas e o calendário escolar atualizado.</p>
+                                        <h2 className="text-2xl font-bold">Bem-vindo ao Portal Escolar!</h2>
+                                        <p className="text-blue-100 text-sm mt-1">Confira abaixo os avisos recentes, cronograma de provas do semestre e o calendário de eventos.</p>
                                     </div>
                                     <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20 text-xs">
                                         📅 Ano Letivo 2026 - 2º Semestre
@@ -188,7 +185,7 @@
                                             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                                 <i data-lucide="bell" className="w-5 h-5 text-blue-600"></i> Mural de Avisos
                                             </h3>
-                                            {user.role === 'admin' && (
+                                            {user?.role === 'admin' && (
                                                 <button onClick={() => setModalTipo('aviso')} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-1">
                                                     <i data-lucide="plus" className="w-3.5 h-3.5"></i> Novo Aviso
                                                 </button>
@@ -219,7 +216,7 @@
                                             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                                 <i data-lucide="file-text" className="w-5 h-5 text-indigo-600"></i> Provas do Semestre
                                             </h3>
-                                            {user.role === 'admin' && (
+                                            {user?.role === 'admin' && (
                                                 <button onClick={() => setModalTipo('prova')} className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition flex items-center gap-1">
                                                     <i data-lucide="plus" className="w-3.5 h-3.5"></i> Agendar
                                                 </button>
@@ -244,13 +241,13 @@
                                     </div>
                                 </div>
 
-                                {/* Calendário Escolar Resumo */}
+                                {/* Calendário Escolar */}
                                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                             <i data-lucide="calendar-days" className="w-5 h-5 text-emerald-600"></i> Calendário Escolar
                                         </h3>
-                                        {user.role === 'admin' && (
+                                        {user?.role === 'admin' && (
                                             <button onClick={() => setModalTipo('evento')} className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-emerald-700 transition flex items-center gap-1">
                                                 <i data-lucide="plus" className="w-3.5 h-3.5"></i> Adicionar Evento
                                             </button>
@@ -274,56 +271,63 @@
                             </div>
                         )}
 
-                        {currentTab === 'management' && (user.role === 'admin' || user.role === 'teacher') && (
-                            <div className="space-y-6">
-                                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Painel de Gestão Escolar</h3>
-                                    <p className="text-sm text-gray-500">Gerencie avisos, adicione datas ao calendário oficial e controle o cronograma de avaliações.</p>
+                        {/* TELA DE LOGIN (Aparece se tentar acessar área restrita sem estar logado) */}
+                        {(!user && (currentTab === 'students' || currentTab === 'grades' || currentTab === 'management' || currentTab === 'login')) && (
+                            <div className="max-w-md mx-auto my-12 bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+                                <div className="text-center mb-6">
+                                    <div className="inline-flex p-3 bg-blue-100 text-blue-600 rounded-xl mb-3">
+                                        <i data-lucide="lock" className="w-8 h-8"></i>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-900">Acesso Restrito</h3>
+                                    <p className="text-xs text-gray-500 mt-1">Informe seu usuário e senha para visualizar esta página.</p>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* Gerenciar Avisos */}
-                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="bell" className="w-4 h-4 text-blue-600"></i> Avisos Ativos</h4>
-                                            <button onClick={() => setModalTipo('aviso')} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg">Novo Aviso</button>
-                                        </div>
-                                        <div className="space-y-3">
-                                            {avisos.map(a => (
-                                                <div key={a.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
-                                                    <div>
-                                                        <span className="font-bold text-gray-900">{a.titulo}</span>
-                                                        <p className="text-gray-500 mt-0.5 truncate max-w-[200px] sm:max-w-xs">{a.texto}</p>
-                                                    </div>
-                                                    <button onClick={() => removerAviso(a.id)} className="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" className="w-4 h-4"></i></button>
-                                                </div>
-                                            ))}
-                                        </div>
+                                {loginError && (
+                                    <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg flex items-center gap-2">
+                                        <i data-lucide="alert-circle" className="w-4 h-4 shrink-0"></i>
+                                        <span>{loginError}</span>
                                     </div>
+                                )}
 
-                                    {/* Gerenciar Provas */}
-                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="file-text" className="w-4 h-4 text-indigo-600"></i> Provas Cadastradas</h4>
-                                            <button onClick={() => setModalTipo('prova')} className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg">Nova Prova</button>
-                                        </div>
-                                        <div className="space-y-3">
-                                            {provas.map(p => (
-                                                <div key={p.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
-                                                    <div>
-                                                        <span className="font-bold text-gray-900">{p.disciplina}</span>
-                                                        <p className="text-gray-500 mt-0.5">{p.data} - {p.sala}</p>
-                                                    </div>
-                                                    <button onClick={() => removerProva(p.id)} className="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" className="w-4 h-4"></i></button>
-                                                </div>
-                                            ))}
-                                        </div>
+                                <form onSubmit={handleLoginSubmit} className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-700 mb-1">Usuário</label>
+                                        <input 
+                                            type="text" 
+                                            value={inputUsername} 
+                                            onChange={e => setInputUsername(e.target.value)} 
+                                            required 
+                                            placeholder="Ex: aluno, professor ou admin"
+                                            className="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
                                     </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-700 mb-1">Senha</label>
+                                        <input 
+                                            type="password" 
+                                            value={inputPassword} 
+                                            onChange={e => setInputPassword(e.target.value)} 
+                                            required 
+                                            placeholder="••••••••"
+                                            className="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                    <button type="submit" className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-md transition">
+                                        Entrar no Sistema
+                                    </button>
+                                </form>
+
+                                <div className="mt-6 pt-4 border-t text-xs text-gray-500 space-y-1 bg-gray-50 p-3 rounded-lg">
+                                    <p className="font-semibold text-gray-700">Dica de Acesso Rápido:</p>
+                                    <p>• <b>Aluno / Resp.:</b> usuário <code>aluno</code> | senha <code>123</code></p>
+                                    <p>• <b>Professor:</b> usuário <code>professor</code> | senha <code>123</code></p>
+                                    <p>• <b>Gestão:</b> usuário <code>admin</code> | senha <code>123</code></p>
                                 </div>
                             </div>
                         )}
 
-                        {currentTab === 'students' && (
+                        {/* PÁGINA DE ALUNOS (Requer login) */}
+                        {user && currentTab === 'students' && (
                             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                     <div>
@@ -368,11 +372,12 @@
                             </div>
                         )}
 
-                        {currentTab === 'grades' && (
+                        {/* PÁGINA DE NOTAS & FREQUÊNCIA (Requer login) */}
+                        {user && currentTab === 'grades' && (
                             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-900">Boletim Escolar & Frequência</h3>
-                                    <p className="text-sm text-gray-500">Acompanhamento de notas bimestrais e percentual de presença.</p>
+                                    <p className="text-sm text-gray-500">Acompanhamento de notas bimestrais e percentual de presença de {user.name}.</p>
                                 </div>
 
                                 <div className="overflow-x-auto">
@@ -417,6 +422,54 @@
                                 </div>
                             </div>
                         )}
+
+                        {/* PÁGINA DE GESTÃO ESCOLAR (Administradores/Professores) */}
+                        {user && (user.role === 'admin' || user.role === 'teacher') && currentTab === 'management' && (
+                            <div className="space-y-6">
+                                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">Painel de Gestão Escolar</h3>
+                                    <p className="text-sm text-gray-500">Gerencie avisos, adicione datas ao calendário oficial e controle o cronograma de avaliações.</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="bell" className="w-4 h-4 text-blue-600"></i> Avisos Ativos</h4>
+                                            <button onClick={() => setModalTipo('aviso')} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg">Novo Aviso</button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {avisos.map(a => (
+                                                <div key={a.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+                                                    <div>
+                                                        <span className="font-bold text-gray-900">{a.titulo}</span>
+                                                        <p className="text-gray-500 mt-0.5 truncate max-w-[200px] sm:max-w-xs">{a.texto}</p>
+                                                    </div>
+                                                    <button onClick={() => removerAviso(a.id)} className="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" className="w-4 h-4"></i></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="file-text" className="w-4 h-4 text-indigo-600"></i> Provas Cadastradas</h4>
+                                            <button onClick={() => setModalTipo('prova')} className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg">Nova Prova</button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {provas.map(p => (
+                                                <div key={p.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+                                                    <div>
+                                                        <span className="font-bold text-gray-900">{p.disciplina}</span>
+                                                        <p className="text-gray-500 mt-0.5">{p.data} - {p.sala}</p>
+                                                    </div>
+                                                    <button onClick={() => removerProva(p.id)} className="text-red-500 hover:text-red-700 p-1"><i data-lucide="trash-2" className="w-4 h-4"></i></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </main>
 
                     {/* Modais de Cadastro */}
@@ -438,7 +491,7 @@
                                     <form onSubmit={adicionarAviso} className="space-y-4">
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-600 mb-1">Título</label>
-                                            <input type="text" value={novoTitulo} onChange={e => setNovoTitulo(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ex: Passeio Cultural" />
+                                            <input type="text" value={novoTitulo} onChange={e => setNovoTitulo(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm outline-none" placeholder="Ex: Passeio Cultural" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-600 mb-1">Prioridade</label>
@@ -450,7 +503,7 @@
                                         </div>
                                         <div>
                                             <label className="block text-xs font-semibold text-gray-600 mb-1">Conteúdo do Aviso</label>
-                                            <textarea value={novoTexto} onChange={e => setNovoTexto(e.target.value)} required rows="3" className="w-full p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Detalhes do aviso..."></textarea>
+                                            <textarea value={novoTexto} onChange={e => setNovoTexto(e.target.value)} required rows="3" className="w-full p-2.5 border rounded-lg text-sm outline-none" placeholder="Detalhes do aviso..."></textarea>
                                         </div>
                                         <div className="flex justify-end gap-2 pt-2">
                                             <button type="button" onClick={() => setModalTipo(null)} className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
@@ -478,7 +531,7 @@
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
                                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Sala</label>
-                                                <input type="text" value={novaSala} onChange={e => setNovoSala(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: Sala 202" />
+                                                <input type="text" value={novaSala} onChange={e => setNovaSala(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: Sala 202" />
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Peso</label>
