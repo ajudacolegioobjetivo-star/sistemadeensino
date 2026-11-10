@@ -344,4 +344,630 @@
                                         <h2 className="text-2xl font-bold">Bem-vindo ao Portal Escolar!</h2>
                                         <p className="text-blue-100 text-sm mt-1">Confira abaixo os avisos recentes, cronograma de provas do semestre e o calendário de eventos.</p>
                                     </div>
-                                    <div className="bg-white/10 px-
+                                    <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20 text-xs">
+                                        📅 Ano Letivo 2026 - 2º Semestre
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    <div className="lg:col-span-2 space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                                <i data-lucide="bell" className="w-5 h-5 text-blue-600"></i> Mural de Avisos
+                                            </h3>
+                                            {(user?.role === 'admin' || user?.role === 'teacher') && (
+                                                <button onClick={() => setModalTipo('aviso')} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-1">
+                                                    <i data-lucide="plus" className="w-3.5 h-3.5"></i> Novo Aviso
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {avisos.length > 0 ? (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {avisos.map(aviso => (
+                                                    <div key={aviso.id} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col justify-between">
+                                                        <div>
+                                                            {aviso.imagem && (
+                                                                <div className="h-44 w-full bg-gray-100 overflow-hidden">
+                                                                    <img src={aviso.imagem} alt={aviso.titulo} className="w-full h-full object-cover" />
+                                                                </div>
+                                                            )}
+                                                            <div className="p-5">
+                                                                <div className="flex justify-between items-start mb-2">
+                                                                    <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold uppercase ${aviso.prioridade === 'Urgente' ? 'bg-red-100 text-red-700' : aviso.prioridade === 'Média' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                                        {aviso.prioridade}
+                                                                    </span>
+                                                                    <span className="text-xs text-gray-400">Por {aviso.autor}</span>
+                                                                </div>
+                                                                <h4 className="font-bold text-gray-900 text-base mb-1">{aviso.titulo}</h4>
+                                                                <p className="text-xs text-gray-600 leading-relaxed">{aviso.texto}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="bg-white p-8 rounded-xl border border-gray-200 text-center text-gray-400 text-sm">
+                                                Nenhum aviso publicado no mural.
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                            <i data-lucide="file-text" className="w-5 h-5 text-indigo-600"></i> Provas do Semestre
+                                        </h3>
+                                        {provas.length > 0 ? (
+                                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
+                                                {provas.map(prova => (
+                                                    <div key={prova.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition">
+                                                        <div>
+                                                            <p className="font-semibold text-sm text-gray-900">{prova.disciplina}</p>
+                                                            <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                                                                <i data-lucide="calendar" className="w-3.5 h-3.5"></i> {prova.data} às {prova.horario} | {prova.sala}
+                                                            </p>
+                                                        </div>
+                                                        <span className="text-xs bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-md border border-indigo-100">
+                                                            Peso {prova.peso}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="bg-white p-6 rounded-xl border border-gray-200 text-center text-gray-400 text-xs">
+                                                Nenhuma prova agendada.
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {(!user && (currentTab === 'students' || currentTab === 'grades' || currentTab === 'management' || currentTab === 'login')) && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-6">
+                                <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 sm:p-8">
+                                    <div className="text-center mb-6">
+                                        <div className="inline-flex p-3 bg-blue-100 text-blue-600 rounded-xl mb-3">
+                                            <i data-lucide="lock" className="w-6 h-6"></i>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-900">Acesso ao Sistema</h3>
+                                        <p className="text-xs text-gray-500 mt-1">Informe suas credenciais registradas.</p>
+                                    </div>
+
+                                    {loginError && (
+                                        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg flex items-center gap-2">
+                                            <i data-lucide="alert-circle" className="w-4 h-4 shrink-0"></i>
+                                            <span>{loginError}</span>
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleLoginSubmit} className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-700 mb-1">Usuário</label>
+                                            <input type="text" value={inputUsername} onChange={e => setInputUsername(e.target.value)} required placeholder="Digite seu usuário" className="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-700 mb-1">Senha</label>
+                                            <input type="password" value={inputPassword} onChange={e => setInputPassword(e.target.value)} required placeholder="••••••••" className="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" />
+                                        </div>
+                                        <button type="submit" className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-md transition">
+                                            Entrar no Sistema
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 sm:p-8">
+                                    <div className="text-center mb-6">
+                                        <div className="inline-flex p-3 bg-emerald-100 text-emerald-600 rounded-xl mb-3">
+                                            <i data-lucide="user-plus" className="w-6 h-6"></i>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-900">Novo Aluno? Cadastre-se</h3>
+                                        <p className="text-xs text-gray-500 mt-1">Preencha os dados para aprovação do gestor.</p>
+                                    </div>
+
+                                    {cadMsg && (
+                                        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg flex items-center gap-2">
+                                            <i data-lucide="check-circle" className="w-4 h-4 shrink-0"></i>
+                                            <span>{cadMsg}</span>
+                                        </div>
+                                    )}
+
+                                    <form onSubmit={handleSolicitarCadastro} className="space-y-3">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Nome Completo</label>
+                                                <input type="text" value={cadNome} onChange={e => setCadNome(e.target.value)} required placeholder="Ex: Mariana Lima" className="w-full p-2 border rounded-lg text-xs outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">E-mail</label>
+                                                <input type="email" value={cadEmail} onChange={e => setCadEmail(e.target.value)} required placeholder="mariana@email.com" className="w-full p-2 border rounded-lg text-xs outline-none" />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Turma</label>
+                                                <select value={cadTurma} onChange={e => setCadTurma(e.target.value)} className="w-full p-2 border rounded-lg text-xs bg-white">
+                                                    <option>3º Ano Ensino Médio A</option>
+                                                    <option>2º Ano Ensino Médio B</option>
+                                                    <option>1º Ano Ensino Médio A</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Responsável</label>
+                                                <input type="text" value={cadResp} onChange={e => setCadResp(e.target.value)} required placeholder="Nome do Responsável" className="w-full p-2 border rounded-lg text-xs outline-none" />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Usuário Desejado</label>
+                                                <input type="text" value={cadUser} onChange={e => setCadUser(e.target.value)} required placeholder="Ex: mariana2026" className="w-full p-2 border rounded-lg text-xs outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-gray-700 mb-1">Senha</label>
+                                                <input type="password" value={cadPass} onChange={e => setCadPass(e.target.value)} required placeholder="••••••••" className="w-full p-2 border rounded-lg text-xs outline-none" />
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs rounded-lg shadow-sm transition mt-2">
+                                            Enviar Solicitação de Cadastro
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+
+                        {user && currentTab === 'students' && (
+                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900">
+                                            {user.role === 'student' ? 'Meu Perfil de Aluno' : 'Lista Geral de Alunos'}
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            {user.role === 'student' ? 'Dados do seu cadastro aprovado na instituição.' : 'Estudantes matriculados no ano letivo de 2026.'}
+                                        </p>
+                                    </div>
+                                    <span className="text-xs bg-blue-50 text-blue-700 font-semibold px-3 py-1.5 rounded-lg border border-blue-200">
+                                        {user.role === 'student' ? 'Status: Matriculado (Ativo)' : `Total: ${alunos.filter(a => a.status === 'Aprovado').length} Alunos`}
+                                    </span>
+                                </div>
+
+                                {user.role === 'student' ? (
+                                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-6">
+                                        <div className="flex items-center gap-4 mb-6">
+                                            <div className="p-4 bg-blue-600 text-white rounded-2xl shadow-md">
+                                                <i data-lucide="user" className="w-8 h-8"></i>
+                                            </div>
+                                            <div>
+                                                <h4 className="text-xl font-bold text-gray-900">{user.name}</h4>
+                                                <p className="text-xs text-blue-700 font-medium">Turma: {user.turma || '3º Ano Ensino Médio A'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                                            <div className="bg-white p-3.5 rounded-lg border border-gray-200">
+                                                <span className="text-gray-400 block font-medium">Responsável:</span>
+                                                <span className="font-semibold text-gray-800 text-sm">{user.responsavel || 'Maria Silva'}</span>
+                                            </div>
+                                            <div className="bg-white p-3.5 rounded-lg border border-gray-200">
+                                                <span className="text-gray-400 block font-medium">E-mail:</span>
+                                                <span className="font-semibold text-gray-800 text-sm">{user.email || 'aluno@escola.com'}</span>
+                                            </div>
+                                            <div className="bg-white p-3.5 rounded-lg border border-gray-200">
+                                                <span className="text-gray-400 block font-medium">Usuário:</span>
+                                                <span className="font-semibold text-gray-800 text-sm">{user.username}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-sm">
+                                            <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 text-xs uppercase">
+                                                <tr>
+                                                    <th className="p-3">Estudante</th>
+                                                    <th className="p-3">Usuário</th>
+                                                    <th className="p-3">Turma</th>
+                                                    <th className="p-3">Responsável</th>
+                                                    <th className="p-3">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {alunos.map(aluno => (
+                                                    <tr key={aluno.id} className="hover:bg-gray-50">
+                                                        <td className="p-3 font-medium text-gray-900">{aluno.nome}</td>
+                                                        <td className="p-3 text-gray-500 text-xs">{aluno.username}</td>
+                                                        <td className="p-3 text-gray-600">{aluno.turma}</td>
+                                                        <td className="p-3 text-gray-600">{aluno.responsavel}</td>
+                                                        <td className="p-3">
+                                                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${aluno.status === 'Aprovado' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                                {aluno.status}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {user && currentTab === 'grades' && (
+                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900">Boletim Escolar & Frequência</h3>
+                                    <p className="text-sm text-gray-500">
+                                        {user.role === 'student' ? `Seu boletim oficial individual - ${user.name}` : 'Acompanhamento de boletim.'}
+                                    </p>
+                                </div>
+
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 text-xs uppercase tracking-wider">
+                                            <tr>
+                                                <th className="p-3">Disciplina</th>
+                                                <th className="p-3 text-center">1º Bimestre</th>
+                                                <th className="p-3 text-center">2º Bimestre</th>
+                                                <th className="p-3 text-center">Média Parcial</th>
+                                                <th className="p-3 text-center">Frequência (%)</th>
+                                                <th className="p-3 text-center">Situação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {alunoLogadoDados && alunoLogadoDados.boletim.length > 0 ? (
+                                                alunoLogadoDados.boletim.map(item => {
+                                                    const media = calcularMedia(item.bim1, item.bim2);
+                                                    const aprovado = parseFloat(media) >= 6.0;
+                                                    return (
+                                                        <tr key={item.id} className="hover:bg-gray-50">
+                                                            <td className="p-3 font-medium text-gray-900">{item.disciplina}</td>
+                                                            <td className="p-3 text-center">{item.bim1}</td>
+                                                            <td className="p-3 text-center">{item.bim2}</td>
+                                                            <td className="p-3 text-center font-bold text-gray-900">{media}</td>
+                                                            <td className="p-3 text-center">{item.frequencia}%</td>
+                                                            <td className="p-3 text-center">
+                                                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${aprovado ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                                    {aprovado ? 'Aprovado' : 'Em Recuperação'}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="6" className="p-4 text-center text-xs text-gray-400">Nenhuma nota lançada até o momento.</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {user && (user.role === 'admin' || user.role === 'teacher') && currentTab === 'management' && (
+                            <div className="space-y-8">
+                                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-1">Painel de Gestão Escolar</h3>
+                                    <p className="text-sm text-gray-500">Aprove cadastros, gerencie o mural, fotos de avisos e exclua avaliações.</p>
+                                </div>
+
+                                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+                                    <h4 className="font-bold text-gray-900 flex items-center gap-2 text-base">
+                                        <i data-lucide="user-check" className="w-5 h-5 text-emerald-600"></i> Central de Aprovação & Páginas Exclusivas
+                                    </h4>
+
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-sm">
+                                            <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 text-xs uppercase">
+                                                <tr>
+                                                    <th className="p-3">Nome</th>
+                                                    <th className="p-3">Turma</th>
+                                                    <th className="p-3">Responsável</th>
+                                                    <th className="p-3">Status</th>
+                                                    <th className="p-3 text-right">Ação / Página de Notas</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {alunos.map(item => (
+                                                    <tr key={item.id} className="hover:bg-gray-50">
+                                                        <td className="p-3 font-medium text-gray-900">{item.nome}</td>
+                                                        <td className="p-3 text-xs text-gray-600">{item.turma}</td>
+                                                        <td className="p-3 text-xs text-gray-600">{item.responsavel}</td>
+                                                        <td className="p-3">
+                                                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.status === 'Aprovado' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                                {item.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3 text-right">
+                                                            {item.status === 'Pendente' ? (
+                                                                <div className="flex justify-end gap-2">
+                                                                    <button onClick={() => aprovarAluno(item.id)} className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-semibold">
+                                                                        Aprovar
+                                                                    </button>
+                                                                    <button onClick={() => recusarAluno(item.id)} className="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded text-xs font-semibold">
+                                                                        Recusar
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <button 
+                                                                    onClick={() => setAlunoSelecionadoId(item.id)} 
+                                                                    className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition flex items-center gap-1 ml-auto">
+                                                                    <i data-lucide="edit-3" className="w-3.5 h-3.5"></i>
+                                                                    <span>Ver / Editar Boletim</span>
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-4">
+                                        <div className="flex flex-wrap justify-between items-center gap-2">
+                                            <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="bell" className="w-4 h-4 text-blue-600"></i> Mural de Avisos</h4>
+                                            <div className="flex gap-2">
+                                                {avisos.length > 0 && (
+                                                    <button onClick={limparTodoMural} className="text-xs bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-2.5 py-1.5 rounded-lg transition font-medium flex items-center gap-1">
+                                                        <i data-lucide="trash-2" className="w-3.5 h-3.5"></i> Limpar Mural
+                                                    </button>
+                                                )}
+                                                <button onClick={() => setModalTipo('aviso')} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-blue-700 transition">
+                                                    Novo Aviso
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            {avisos.length > 0 ? (
+                                                avisos.map(a => (
+                                                    <div key={a.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+                                                        <div className="flex items-center gap-3">
+                                                            {a.imagem && (
+                                                                <img src={a.imagem} alt="Thumb" className="w-10 h-10 object-cover rounded-lg shrink-0 border border-gray-200" />
+                                                            )}
+                                                            <div>
+                                                                <span className="font-bold text-gray-900">{a.titulo}</span>
+                                                                <p className="text-gray-500 mt-0.5 truncate max-w-[150px] sm:max-w-xs">{a.texto}</p>
+                                                            </div>
+                                                        </div>
+                                                        <button onClick={() => removerAviso(a.id)} title="Excluir Aviso" className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-lg transition">
+                                                            <i data-lucide="trash-2" className="w-4 h-4"></i>
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-xs text-gray-400 text-center py-4">O mural está vazio.</p>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="file-text" className="w-4 h-4 text-indigo-600"></i> Provas Cadastradas</h4>
+                                            <button onClick={() => setModalTipo('prova')} className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-indigo-700 transition">Nova Prova</button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {provas.length > 0 ? (
+                                                provas.map(p => (
+                                                    <div key={p.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+                                                        <div>
+                                                            <span className="font-bold text-gray-900">{p.disciplina}</span>
+                                                            <p className="text-gray-500 mt-0.5">{p.data} às {p.horario} - {p.sala}</p>
+                                                        </div>
+                                                        <button onClick={() => removerProva(p.id)} title="Excluir Prova" className="text-red-500 hover:text-red-700 p-1.5 hover:bg-red-50 rounded-lg transition">
+                                                            <i data-lucide="trash-2" className="w-4 h-4"></i>
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-xs text-gray-400 text-center py-4">Nenhuma prova cadastrada.</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {alunoEdicaoAtual && (
+                            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+                                <div className="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-gray-100 my-8">
+                                    <div className="flex justify-between items-start border-b pb-4 mb-4">
+                                        <div>
+                                            <span className="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded uppercase">Página Exclusiva de Notas</span>
+                                            <h3 className="text-xl font-bold text-gray-900 mt-1">Boletim: {alunoEdicaoAtual.nome}</h3>
+                                            <p className="text-xs text-gray-500">Turma: {alunoEdicaoAtual.turma} | Resp: {alunoEdicaoAtual.responsavel}</p>
+                                        </div>
+                                        <button onClick={() => setAlunoSelecionadoId(null)} className="p-1 text-gray-400 hover:text-gray-600">
+                                            <i data-lucide="x" className="w-6 h-6"></i>
+                                        </button>
+                                    </div>
+
+                                    <form onSubmit={(e) => adicionarDisciplinaAoAluno(e, alunoEdicaoAtual.id)} className="bg-indigo-50/50 border border-indigo-100 p-4 rounded-xl mb-6 space-y-3">
+                                        <h4 className="text-xs font-bold text-indigo-900">Adicionar Nova Disciplina ao Aluno:</h4>
+                                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                                            <input type="text" value={novaDiscNome} onChange={e => setNovaDiscNome(e.target.value)} required placeholder="Disciplina (ex: Química)" className="p-2 border rounded-lg text-xs" />
+                                            <input type="number" step="0.1" value={novaDiscBim1} onChange={e => setNovaDiscBim1(e.target.value)} placeholder="Nota 1º Bim" className="p-2 border rounded-lg text-xs" />
+                                            <input type="number" step="0.1" value={novaDiscBim2} onChange={e => setNovaDiscBim2(e.target.value)} placeholder="Nota 2º Bim" className="p-2 border rounded-lg text-xs" />
+                                            <input type="number" value={novaDiscFreq} onChange={e => setNovaDiscFreq(e.target.value)} placeholder="Frequência %" className="p-2 border rounded-lg text-xs" />
+                                        </div>
+                                        <button type="submit" className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold">
+                                            + Lançar Disciplina
+                                        </button>
+                                    </form>
+
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-sm">
+                                            <thead className="bg-gray-100 text-gray-700 text-xs uppercase">
+                                                <tr>
+                                                    <th className="p-3">Disciplina</th>
+                                                    <th className="p-3 text-center">1º Bimestre</th>
+                                                    <th className="p-3 text-center">2º Bimestre</th>
+                                                    <th className="p-3 text-center">Média Parcial</th>
+                                                    <th className="p-3 text-center">Frequência (%)</th>
+                                                    <th className="p-3 text-right">Ação</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100">
+                                                {alunoEdicaoAtual.boletim.map(item => {
+                                                    const media = calcularMedia(item.bim1, item.bim2);
+                                                    return (
+                                                        <tr key={item.id} className="hover:bg-gray-50">
+                                                            <td className="p-3 font-semibold text-gray-900 text-xs">{item.disciplina}</td>
+                                                            <td className="p-3 text-center">
+                                                                <input 
+                                                                    type="number" 
+                                                                    step="0.1" 
+                                                                    value={item.bim1} 
+                                                                    onChange={e => atualizarMateriaBoletim(alunoEdicaoAtual.id, item.id, 'bim1', e.target.value)} 
+                                                                    className="w-16 p-1 text-center border rounded text-xs font-medium"
+                                                                />
+                                                            </td>
+                                                            <td className="p-3 text-center">
+                                                                <input 
+                                                                    type="number" 
+                                                                    step="0.1" 
+                                                                    value={item.bim2} 
+                                                                    onChange={e => atualizarMateriaBoletim(alunoEdicaoAtual.id, item.id, 'bim2', e.target.value)} 
+                                                                    className="w-16 p-1 text-center border rounded text-xs font-medium"
+                                                                />
+                                                            </td>
+                                                            <td className="p-3 text-center font-bold text-xs text-blue-700">{media}</td>
+                                                            <td className="p-3 text-center">
+                                                                <input 
+                                                                    type="number" 
+                                                                    value={item.frequencia} 
+                                                                    onChange={e => atualizarMateriaBoletim(alunoEdicaoAtual.id, item.id, 'frequencia', e.target.value)} 
+                                                                    className="w-16 p-1 text-center border rounded text-xs font-medium"
+                                                                /> %
+                                                            </td>
+                                                            <td className="p-3 text-right">
+                                                                <button onClick={() => removerMateriaBoletim(alunoEdicaoAtual.id, item.id)} className="text-red-500 hover:text-red-700 p-1">
+                                                                    <i data-lucide="trash-2" className="w-4 h-4"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div className="flex justify-end mt-6 pt-4 border-t">
+                                        <button onClick={() => setAlunoSelecionadoId(null)} className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold">
+                                            Concluir & Salvar Boletim
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+
+                    {modalTipo && (
+                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="font-bold text-lg text-gray-900">
+                                        {modalTipo === 'aviso' && 'Novo Aviso com Foto / Banner'}
+                                        {modalTipo === 'prova' && 'Agendar Nova Prova'}
+                                    </h3>
+                                    <button onClick={() => setModalTipo(null)} className="text-gray-400 hover:text-gray-600">
+                                        <i data-lucide="x" className="w-5 h-5"></i>
+                                    </button>
+                                </div>
+
+                                {modalTipo === 'aviso' && (
+                                    <form onSubmit={adicionarAviso} className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Título</label>
+                                            <input type="text" value={novoTitulo} onChange={e => setNovoTitulo(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm outline-none" placeholder="Ex: Torneio Interclasses" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Prioridade</label>
+                                            <select value={novaPrioridade} onChange={e => setNovaPrioridade(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm bg-white">
+                                                <option value="Urgente">Urgente</option>
+                                                <option value="Média">Média</option>
+                                                <option value="Informativo">Informativo</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div className="space-y-2 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                            <label className="block text-xs font-semibold text-gray-700">Foto ou Banner do Aviso</label>
+                                            
+                                            <div>
+                                                <span className="block text-[11px] text-gray-500 mb-1">1. Escolher do dispositivo:</span>
+                                                <input 
+                                                    type="file" 
+                                                    accept="image/*" 
+                                                    onChange={handleImageUpload} 
+                                                    className="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" 
+                                                />
+                                            </div>
+
+                                            <div className="pt-1">
+                                                <span className="block text-[11px] text-gray-500 mb-1">2. Ou cole o Link da imagem:</span>
+                                                <input 
+                                                    type="url" 
+                                                    value={novaImagem} 
+                                                    onChange={e => setNovaImagem(e.target.value)} 
+                                                    className="w-full p-2 border rounded-lg text-xs outline-none bg-white" 
+                                                    placeholder="https://exemplo.com/banner.jpg" 
+                                                />
+                                            </div>
+
+                                            {novaImagem && (
+                                                <div className="mt-2 text-center">
+                                                    <span className="text-[10px] text-emerald-600 font-semibold block mb-1">✓ Pré-visualização da Imagem:</span>
+                                                    <img src={novaImagem} alt="Preview" className="h-24 w-full object-cover rounded-lg border border-gray-200" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Conteúdo do Aviso</label>
+                                            <textarea value={novoTexto} onChange={e => setNovoTexto(e.target.value)} required rows="3" className="w-full p-2.5 border rounded-lg text-sm outline-none" placeholder="Detalhes do aviso..."></textarea>
+                                        </div>
+                                        <div className="flex justify-end gap-2 pt-2">
+                                            <button type="button" onClick={() => setModalTipo(null)} className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+                                            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Salvar Aviso</button>
+                                        </div>
+                                    </form>
+                                )}
+
+                                {modalTipo === 'prova' && (
+                                    <form onSubmit={adicionarProva} className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold text-gray-600 mb-1">Disciplina</label>
+                                            <input type="text" value={novaDisciplina} onChange={e => setNovaDisciplina(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: Biologia" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-xs font-semibold text-gray-600 mb-1">Data</label>
+                                                <input type="text" value={novaData} onChange={e => setNovaData(e.target.value)} required className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: 25/11/2026" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-semibold text-gray-600 mb-1">Horário</label>
+                                                <input type="text" value={novoHorario} onChange={e => setNovoHorario(e.target.value)} className="w-full p-2.5 border rounded-lg text-sm" placeholder="Ex: 08:00" />
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-end gap-2 pt-2">
+                                            <button type="button" onClick={() => setModalTipo(null)} className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Cancelar</button>
+                                            <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">Salvar Prova</button>
+                                        </div>
+                                    </form>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
