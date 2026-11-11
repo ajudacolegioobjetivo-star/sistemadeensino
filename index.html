@@ -19,16 +19,13 @@
 
     <script type="text/babel">
         function App() {
-            // Estado do usuário logado
             const [user, setUser] = React.useState(null);
             const [currentTab, setCurrentTab] = React.useState('home');
 
-            // Formulário de Login
             const [inputUsername, setInputUsername] = React.useState('');
             const [inputPassword, setInputPassword] = React.useState('');
             const [loginError, setLoginError] = React.useState('');
 
-            // Estado para Formulário de Cadastro de Aluno
             const [cadNome, setCadNome] = React.useState('');
             const [cadEmail, setCadEmail] = React.useState('');
             const [cadTurma, setCadTurma] = React.useState('3º Ano Ensino Médio A');
@@ -37,7 +34,6 @@
             const [cadPass, setCadPass] = React.useState('');
             const [cadMsg, setCadMsg] = React.useState('');
 
-            // Carregamento Inicial com Persistência no LocalStorage
             const [alunos, setAlunos] = React.useState(() => {
                 const salvo = localStorage.getItem('escola_alunos');
                 return salvo ? JSON.parse(salvo) : [
@@ -63,7 +59,6 @@
             const [novaDiscBim2, setNovaDiscBim2] = React.useState('');
             const [novaDiscFreq, setNovaDiscFreq] = React.useState('');
 
-            // Mural de Avisos com LocalStorage
             const [avisos, setAvisos] = React.useState(() => {
                 const salvo = localStorage.getItem('escola_avisos');
                 return salvo ? JSON.parse(salvo) : [
@@ -78,7 +73,6 @@
                 ];
             });
 
-            // Provas do Semestre com LocalStorage
             const [provas, setProvas] = React.useState(() => {
                 const salvo = localStorage.getItem('escola_provas');
                 return salvo ? JSON.parse(salvo) : [
@@ -93,7 +87,6 @@
                 ];
             });
 
-            // Modais de Cadastro
             const [modalTipo, setModalTipo] = React.useState(null);
             const [novoTitulo, setNovoTitulo] = React.useState('');
             const [novoTexto, setNovoTexto] = React.useState('');
@@ -105,7 +98,6 @@
             const [novaSala, setNovaSala] = React.useState('');
             const [novoPeso, setNovoPeso] = React.useState('2.0');
 
-            // Salvamento automático sempre que os dados forem alterados
             React.useEffect(() => {
                 localStorage.setItem('escola_avisos', JSON.stringify(avisos));
             }, [avisos]);
@@ -273,14 +265,24 @@
                 setNovaDisciplina(''); setNovaData(''); setModalTipo(null);
             };
 
-            const removerAviso = (id) => setAvisos(avisos.filter(a => a.id !== id));
+            // Funções de Exclusão
+            const removerAviso = (id) => {
+                if (window.confirm('Excluir este aviso do mural?')) {
+                    setAvisos(avisos.filter(a => a.id !== id));
+                }
+            };
+
             const limparTodoMural = () => {
-                if (window.confirm('Tem certeza que deseja excluir todos os avisos do mural?')) {
+                if (window.confirm('Tem certeza que deseja apagar TODOS os avisos do mural?')) {
                     setAvisos([]);
                 }
             };
 
-            const removerProva = (id) => setProvas(provas.filter(p => p.id !== id));
+            const removerProva = (id) => {
+                if (window.confirm('Excluir esta prova agendada?')) {
+                    setProvas(provas.filter(p => p.id !== id));
+                }
+            };
 
             const alunoEdicaoAtual = alunos.find(a => a.id === alunoSelecionadoId);
             const alunoLogadoDados = alunos.find(a => a.id === user?.id) || alunos.find(a => a.username === user?.username);
@@ -365,7 +367,7 @@
                                         {avisos.length > 0 ? (
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 {avisos.map(aviso => (
-                                                    <div key={aviso.id} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col justify-between">
+                                                    <div key={aviso.id} className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col justify-between relative group">
                                                         <div>
                                                             {aviso.imagem && (
                                                                 <div className="h-44 w-full bg-gray-100 overflow-hidden">
@@ -383,6 +385,16 @@
                                                                 <p className="text-xs text-gray-600 leading-relaxed">{aviso.texto}</p>
                                                             </div>
                                                         </div>
+
+                                                        {/* Botão de Excluir Direto no Card (para Gestores) */}
+                                                        {(user?.role === 'admin' || user?.role === 'teacher') && (
+                                                            <button 
+                                                                onClick={() => removerAviso(aviso.id)}
+                                                                title="Excluir este aviso" 
+                                                                className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition opacity-80 hover:opacity-100">
+                                                                <i data-lucide="trash-2" className="w-4 h-4"></i>
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 ))}
                                             </div>
@@ -407,9 +419,16 @@
                                                                 <i data-lucide="calendar" className="w-3.5 h-3.5"></i> {prova.data} às {prova.horario} | {prova.sala}
                                                             </p>
                                                         </div>
-                                                        <span className="text-xs bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-md border border-indigo-100">
-                                                            Peso {prova.peso}
-                                                        </span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-xs bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-md border border-indigo-100">
+                                                                Peso {prova.peso}
+                                                            </span>
+                                                            {(user?.role === 'admin' || user?.role === 'teacher') && (
+                                                                <button onClick={() => removerProva(prova.id)} title="Excluir prova" className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded">
+                                                                    <i data-lucide="trash-2" className="w-4 h-4"></i>
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -706,6 +725,7 @@
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* MURAL DE AVISOS COM OPÇÕES DE EXCLUSÃO */}
                                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-4">
                                         <div className="flex flex-wrap justify-between items-center gap-2">
                                             <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="bell" className="w-4 h-4 text-blue-600"></i> Mural de Avisos</h4>
@@ -745,6 +765,7 @@
                                         </div>
                                     </div>
 
+                                    {/* PROVAS COM OPÇÃO DE EXCLUSÃO */}
                                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-4">
                                         <div className="flex justify-between items-center">
                                             <h4 className="font-bold text-gray-900 flex items-center gap-2"><i data-lucide="file-text" className="w-4 h-4 text-indigo-600"></i> Provas Cadastradas</h4>
